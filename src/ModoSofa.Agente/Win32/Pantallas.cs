@@ -173,18 +173,10 @@ public sealed class Pantallas(ILogger<Pantallas> log)
 
         // El código de fabricante EDID va siempre: algunos monitores no anuncian nombre, y las
         // teles LG se identifican además por «GSM».
-        var fabricante = Fabricante(nombre.edidManufactureId);
+        var fabricante = ModoSofa.Nucleo.Edid.Fabricante(nombre.edidManufactureId);
         return string.IsNullOrEmpty(nombre.monitorFriendlyDeviceName)
             ? $"(sin nombre) [{fabricante}]"
             : $"{nombre.monitorFriendlyDeviceName} [{fabricante}]";
-    }
-
-    /// <summary>Tres letras de 5 bits, en el orden de bytes del EDID (big-endian).</summary>
-    private static string Fabricante(ushort id)
-    {
-        var v = (ushort)((id >> 8) | (id << 8));
-        if (v == 0) return "?";
-        return new string([(char)('A' - 1 + ((v >> 10) & 31)), (char)('A' - 1 + ((v >> 5) & 31)), (char)('A' - 1 + (v & 31))]);
     }
 
     // --- API CCD ---------------------------------------------------------------------------

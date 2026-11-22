@@ -32,10 +32,7 @@ public sealed class RetroArch(Configuracion config, ILogger<RetroArch> log)
         try
         {
             var r = await udp.ReceiveAsync(cts.Token);
-            var texto = Encoding.ASCII.GetString(r.Buffer).Trim();
-            // "GET_STATUS PLAYING snes,Juego,crc32=…"
-            var partes = texto.Split(' ', 3);
-            return partes.Length >= 2 ? partes[1] : null;
+            return RetroArchProtocolo.EstadoDe(Encoding.ASCII.GetString(r.Buffer));
         }
         catch (Exception ex) when (ex is OperationCanceledException or SocketException)
         {

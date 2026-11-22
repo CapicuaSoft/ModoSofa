@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+// La firma vive en local.properties (no versionado), igual que en GameController: el almacén de
+// claves es C:\Proyectos\Claves\capicua.jks y la ruta es relativa a este módulo.
+val propiedadesLocales = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hayFirma = propiedadesLocales.getProperty("KEYSTORE_PATH") != null
 
 android {
     namespace = "com.capicua.modosofa"
@@ -15,9 +25,21 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        if (hayFirma) {
+            create("release") {
+                storeFile = file(propiedadesLocales.getProperty("KEYSTORE_PATH"))
+                storePassword = propiedadesLocales.getProperty("KEYSTORE_PASSWORD")
+                keyAlias = propiedadesLocales.getProperty("KEY_ALIAS")
+                keyPassword = propiedadesLocales.getProperty("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (hayFirma) signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
