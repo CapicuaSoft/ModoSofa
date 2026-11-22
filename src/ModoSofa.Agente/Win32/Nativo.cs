@@ -79,7 +79,8 @@ internal static partial class Nativo
         if (largo == 0) return "";
         var sb = new StringBuilder(largo + 1);
         GetWindowText(hwnd, sb, sb.Capacity);
-        return sb.ToString();
+        // Steam en español titula «Modo Big Picture de Steam» con un espacio no separable.
+        return sb.ToString().Replace(' ', ' ');
     }
 
     public static string ClaseVentana(IntPtr hwnd)

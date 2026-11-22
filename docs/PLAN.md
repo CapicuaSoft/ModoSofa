@@ -93,9 +93,31 @@ Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pe
   cancelación, intent desconocido y token incorrecto.
 - RetroArch: `network_cmd_enable = "true"` (copia en `retroarch.cfg.antes-de-modosofa.bak`).
 
-**No probado todavía** (requiere la tele o tocaría tu sesión de trabajo): entrar/salir del modo
-sofá de verdad, cambio de pantallas y audio, cierre de programas, guardián de foco, cerrar juego
-con RetroArch abierto, tele LG, Wake-on-LAN, Tailscale y el skill real de Alexa.
+### Ciclo completo en el PC real (sin tele: el monitor `[AGO]` hizo de tele y los altavoces de audio de la tele)
+
+- Detección automática → entrada en modo sofá sin intervención.
+- Pantalla única (conservando el modo), audio y volumen inicial, Teams cerrado (y terminado al
+  no cerrarse en 5 s), ventanas minimizadas, suspensión inhibida, Steam arrancado en Big Picture.
+- Guardián: Notepad++ forzado al frente → minimizado en < 1 s.
+- RetroArch abierto → detectado, responde a `GET_STATUS`, «Cerrar juego» lo cierra con `QUIT`;
+  al salir reescribe su configuración y `network_cmd_enable` sigue en `true`.
+- Overlay visible encima de Big Picture a pantalla completa.
+- Volver a trabajar: Steam cerrado, pantallas, audio y volumen restaurados, 3 de 3 / 4 de 4
+  ventanas en su sitio, Teams relanzado (app MSIX, por AUMID).
+- Cuelgue simulado en modo sofá + tele ausente al rearrancar → se deshace todo solo.
+
+Arreglado durante la prueba:
+- El título de Big Picture en español lleva un espacio no separable: no se detectaba la ventana.
+- Lanzar `steam.exe` tarda ~15 s en este PC (medido fuera de ModoSofá; cualquier otro exe
+  arranca en < 1,5 s; probablemente el antivirus). Si Big Picture ya está abierto, ahora solo se
+  le da el foco. Con Steam cerrado la entrada completa tarda ~37 s.
+
+Efecto secundario: al activar los comandos de red, Windows pregunta si `retroarch.exe` puede
+usar la red. Hay que responder **Cancelar**: ModoSofá le habla desde el propio PC, y así nadie de
+la red puede enviarle órdenes.
+
+**No probado todavía:** con dos pantallas reales (tele + monitor), audio HDMI de la tele, atajos
+pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de Alexa.
 
 ## Pendiente de hacer en el equipo real
 1. Arrancar el agente y revisar `/api/diagnostico` (nombres de pantallas y audio) para ajustar

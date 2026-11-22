@@ -37,14 +37,26 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
     /// <summary>Abre Steam en Big Picture (o cambia a Big Picture si ya estaba abierto) y espera su ventana.</summary>
     public async Task BigPictureAsync(CancellationToken ct = default)
     {
+        // Lanzar steam.exe tarda ~15 s en este equipo (antes incluso de que el proceso arranque),
+        // así que si Big Picture ya está abierto basta con darle el foco.
+        var abierta = VentanaBigPicture();
+        if (abierta != IntPtr.Zero)
+        {
+            ventanas.Enfocar(abierta);
+            log.LogInformation("Big Picture ya estaba abierto: foco devuelto.");
+            return;
+        }
+
+        var ruta = RutaSteam() ?? throw new InvalidOperationException("No se encuentra steam.exe (configura Lanzadores.SteamExe).");
         if (SteamAbierto())
         {
-            Process.Start(new ProcessStartInfo("steam://open/bigpicture") { UseShellExecute = true });
+            // Se pasa el enlace a steam.exe, que lo entrega a la instancia abierta. Abrirlo con
+            // el shell (UseShellExecute) bloqueaba ~15 s.
+            Process.Start(new ProcessStartInfo(ruta, "steam://open/bigpicture") { UseShellExecute = false });
             log.LogInformation("Steam ya estaba abierto: cambiando a Big Picture.");
         }
         else
         {
-            var ruta = RutaSteam() ?? throw new InvalidOperationException("No se encuentra steam.exe (configura Lanzadores.SteamExe).");
             Process.Start(new ProcessStartInfo(ruta, "-gamepadui") { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(ruta)! });
             log.LogInformation("Iniciando Steam en Big Picture.");
         }
