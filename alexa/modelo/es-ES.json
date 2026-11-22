@@ -1,0 +1,72 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "modo sofá",
+      "intents": [
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.NavigateHomeIntent", "samples": [] },
+        { "name": "AMAZON.YesIntent", "samples": [] },
+        { "name": "AMAZON.NoIntent", "samples": [] },
+        {
+          "name": "ActivarModoSofaIntent",
+          "samples": ["actívate", "activa el modo sofá", "modo sofá", "vamos a jugar", "quiero jugar", "pon el modo juegos", "prepara el equipo para jugar"]
+        },
+        {
+          "name": "VolverATrabajarIntent",
+          "samples": ["vuelve a trabajar", "volver a trabajar", "modo trabajo", "desactiva el modo sofá", "se acabó jugar", "he terminado de jugar"]
+        },
+        {
+          "name": "CerrarJuegoIntent",
+          "samples": ["cierra el juego", "cerrar juego", "sal del juego", "cierra el emulador", "cierra retroarch", "quita el juego"]
+        },
+        {
+          "name": "EnfocarJuegoIntent",
+          "samples": ["enfoca el juego", "pon el juego delante", "trae el juego", "muestra el juego", "vuelve al juego"]
+        },
+        {
+          "name": "SubirVolumenIntent",
+          "samples": ["sube el volumen", "subir volumen", "más volumen", "más alto", "sube el sonido"]
+        },
+        {
+          "name": "BajarVolumenIntent",
+          "samples": ["baja el volumen", "bajar volumen", "menos volumen", "más bajo", "baja el sonido"]
+        },
+        {
+          "name": "SilenciarIntent",
+          "samples": ["silencia", "silencio", "quita el sonido", "pon el sonido", "activa el sonido"]
+        },
+        {
+          "name": "AbrirSteamIntent",
+          "samples": ["abre steam", "abrir steam", "inicia steam", "pon big picture", "abre big picture"]
+        },
+        {
+          "name": "CerrarSteamIntent",
+          "samples": ["cierra steam", "cerrar steam", "apaga steam"]
+        },
+        {
+          "name": "AbrirEmulationStationIntent",
+          "samples": ["abre emulation station", "abre los emuladores", "abre los juegos retro", "abre es de"]
+        },
+        {
+          "name": "ApagarTeleIntent",
+          "samples": ["apaga la tele", "apagar la tele", "apaga la televisión"]
+        },
+        {
+          "name": "SuspenderEquipoIntent",
+          "samples": ["suspende el equipo", "suspender el equipo", "pon el equipo en reposo", "suspende el ordenador"]
+        },
+        {
+          "name": "ReiniciarEquipoIntent",
+          "samples": ["reinicia el equipo", "reiniciar el equipo", "reinicia el ordenador", "reinicia el pc"]
+        },
+        {
+          "name": "ApagarEquipoIntent",
+          "samples": ["apaga el equipo", "apagar el equipo", "apaga el ordenador", "apaga el pc"]
+        }
+      ],
+      "types": []
+    }
+  }
+}

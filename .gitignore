@@ -1,0 +1,12 @@
+bin/
+obj/
+dist/
+.vs/
+*.user
+TestResults/
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+__pycache__/

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>ModoSofá — menú</title>
+  <style>
+    :root { --fondo:#12141c; --sup:#1d2030; --borde:#31364d; --texto:#eceef6; --tenue:#9aa0b8; --acento:#7c6cf2; --sofa:#2fbf8f; --peligro:#ef5d6c; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--fondo); color: var(--texto); overflow: hidden; user-select: none; cursor: default;
+      font: 2.4vh/1.35 system-ui, "Segoe UI", sans-serif; display: flex; flex-direction: column; padding: 4vh 4vw;
+    }
+    header { display: flex; align-items: center; gap: 1.6vw; margin-bottom: 3vh; }
+    header h1 { margin: 0; font-size: 4vh; flex: 1; }
+    .insignia { padding: .4vh 1.2vw; border-radius: 99px; font-weight: 700; background: color-mix(in srgb, var(--sofa) 22%, transparent); color: var(--sofa); }
+    .estado { color: var(--tenue); margin-bottom: 2.6vh; min-height: 3.4vh; }
+    ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1vh; flex: 1; overflow-y: auto; scrollbar-width: none; scroll-behavior: smooth; }
+    ul::-webkit-scrollbar { display: none; }
+    li {
+      flex: none; display: flex; align-items: center; justify-content: space-between; padding: 1.5vh 2vw; border-radius: 1.6vh;
+      background: var(--sup); border: .3vh solid transparent; font-size: 3vh; transition: background .1s, border-color .1s;
+    }
+    li.sel { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 22%, var(--sup)); }
+    li.peligro { color: #ffb3bb; }
+    li .valor { color: var(--tenue); font-size: 2.4vh; }
+    .confirmar { text-align: center; margin: auto; font-size: 3.6vh; }
+    .confirmar b { color: var(--peligro); }
+    footer { margin-top: 2.4vh; color: var(--tenue); display: flex; gap: 3vw; font-size: 2.2vh; }
+    kbd { display: inline-grid; place-items: center; min-width: 3.4vh; height: 3.4vh; padding: 0 .8vh; border-radius: 99px; font: 700 2vh system-ui; margin-right: .6vw; }
+    .a { background: #3fae5a; color: #fff; } .b { background: #d9534f; color: #fff; } .cruceta { background: var(--sup); border: 1px solid var(--borde); }
+    .mensaje { position: fixed; left: 50%; bottom: 10vh; transform: translateX(-50%); background: var(--sup); border: 1px solid var(--borde); padding: 1.4vh 2vw; border-radius: 1.4vh; opacity: 0; transition: opacity .2s; }
+    .mensaje.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ModoSofá</h1>
+    <span class="insignia" id="modo">—</span>
+  </header>
+  <div class="estado" id="estado"></div>
+  <ul id="menu"></ul>
+  <footer>
+    <span><kbd class="a">A</kbd>Aceptar</span>
+    <span><kbd class="b">B</kbd>Volver</span>
+    <span><kbd class="cruceta">◀ ▶</kbd>Volumen</span>
+  </footer>
+  <div class="mensaje" id="mensaje"></div>
+
+  <script src="comun.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let estado = null;
+
+    const PRINCIPAL = [
+      { texto: "Volver al juego", cerrar: true },
+      { texto: "Cerrar juego", id: "juego.cerrar", cerrar: true },
+      { texto: "Enfocar juego", id: "juego.enfocar", cerrar: true },
+      { texto: "Volumen", volumen: true },
+      { texto: "Silenciar", id: "volumen.silenciar" },
+      { texto: "EmulationStation", id: "esde.abrir", cerrar: true },
+      { texto: "Steam Big Picture", id: "steam.bigpicture", cerrar: true },
+      { texto: "Guardián de foco", id: "guardian.alternar", valor: () => estado?.guardian ? "Activo" : "En pausa" },
+      { texto: "Volver a trabajar", id: "modo.trabajo", cerrar: true },
+      { texto: "Equipo…", submenu: "equipo" },
+    ];
+    const EQUIPO = [
+      { texto: "Suspender", id: "equipo.suspender", peligro: true },
+      { texto: "Reiniciar", id: "equipo.reiniciar", peligro: true },
+      { texto: "Apagar", id: "equipo.apagar", peligro: true },
+      { texto: "Volver", atras: true },
+    ];
+
+    let menu = PRINCIPAL, sel = 0, confirmando = null;
+
+    function cerrar() { menu = PRINCIPAL; sel = 0; confirmando = null; pintar(); window.chrome?.webview?.postMessage("cerrar"); }
+
+    function avisar(t) {
+      const m = $("mensaje"); m.textContent = t; m.classList.add("visible");
+      clearTimeout(avisar.t); avisar.t = setTimeout(() => m.classList.remove("visible"), 1500);
+    }
+
+    function pintar() {
+      const ul = $("menu");
+      if (confirmando) {
+        ul.innerHTML = `<div class="confirmar">¿<b>${confirmando.texto}</b> el equipo?<br><br>Pulsa <kbd class="a">A</kbd> para confirmar o <kbd class="b">B</kbd> para cancelar.</div>`;
+        return;
+      }
+      ul.replaceChildren(...menu.map((m, i) => {
+        const li = document.createElement("li");
+        li.className = (i === sel ? "sel " : "") + (m.peligro ? "peligro" : "");
+        const valor = m.volumen ? "◀  ▶" : m.valor ? m.valor() : m.submenu ? "▶" : "";
+        li.innerHTML = `<span></span><span class="valor">${valor}</span>`;
+        li.firstChild.textContent = m.texto;
+        li.onclick = () => { sel = i; aceptar(); };
+        return li;
+      }));
+      ul.children[sel]?.scrollIntoView({ block: "nearest" });
+    }
+
+    async function lanzar(id) {
+      try { await ModoSofa.accion(id); } catch { avisar("Sin conexión con el agente"); }
+    }
+
+    function aceptar() {
+      if (confirmando) { const id = confirmando.id; confirmando = null; lanzar(id); cerrar(); return; }
+      const m = menu[sel];
+      if (m.cerrar && !m.id) return cerrar();
+      if (m.submenu) { menu = EQUIPO; sel = 0; return pintar(); }
+      if (m.atras) { menu = PRINCIPAL; sel = PRINCIPAL.length - 1; return pintar(); }
+      if (m.volumen) return;
+      if (m.peligro) { confirmando = m; return pintar(); }
+      lanzar(m.id);
+      if (m.cerrar) cerrar(); else avisar(m.texto);
+    }
+
+    function atras() {
+      if (confirmando) { confirmando = null; return pintar(); }
+      if (menu !== PRINCIPAL) { menu = PRINCIPAL; sel = PRINCIPAL.length - 1; return pintar(); }
+      cerrar();
+    }
+
+    function boton(b) {
+      switch (b) {
+        case "DPadUp": if (!confirmando) { sel = (sel - 1 + menu.length) % menu.length; pintar(); } break;
+        case "DPadDown": if (!confirmando) { sel = (sel + 1) % menu.length; pintar(); } break;
+        case "DPadLeft": lanzar("volumen.bajar"); avisar("Volumen −"); break;
+        case "DPadRight": lanzar("volumen.subir"); avisar("Volumen +"); break;
+        case "A": aceptar(); break;
+        case "B": atras(); break;
+      }
+    }
+
+    function pintarEstado(e) {
+      estado = e;
+      $("modo").textContent = e.modo === "sofa" ? "Modo sofá" : "Modo trabajo";
+      const tipo = ModoSofa.nombresActivo[e.tipoActivo] || "";
+      $("estado").textContent = [e.activo ? `En pantalla: ${e.activo}${tipo && tipo !== e.activo ? " (" + tipo + ")" : ""}` : "", e.audio ? `Audio: ${e.audio}` : ""]
+        .filter(Boolean).join("   ·   ");
+      if (!confirmando) pintar();
+    }
+
+    window.chrome?.webview?.addEventListener("message", e => {
+      if (e.data === "abierto") { menu = PRINCIPAL; sel = 0; confirmando = null; pintar(); }
+      else if (typeof e.data === "string" && e.data.startsWith("boton:")) boton(e.data.slice(6));
+    });
+    // Para probar con teclado fuera de la tele.
+    addEventListener("keydown", e => boton({ ArrowUp: "DPadUp", ArrowDown: "DPadDown", ArrowLeft: "DPadLeft", ArrowRight: "DPadRight", Enter: "A", Escape: "B" }[e.key]));
+
+    pintar();
+    ModoSofa.api("/estado").then(pintarEstado).catch(() => {});
+    ModoSofa.eventos({ estado: pintarEstado });
+  </script>
+</body>
+</html>

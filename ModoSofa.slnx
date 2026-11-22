@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ModoSofa.Nucleo/ModoSofa.Nucleo.csproj" />
+    <Project Path="src/ModoSofa.Agente/ModoSofa.Agente.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ModoSofa.Nucleo.Tests/ModoSofa.Nucleo.Tests.csproj" />
+  </Folder>
+</Solution>

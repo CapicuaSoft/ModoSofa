@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Authors>José Luis Bautista Martín</Authors>
+    <Product>ModoSofá</Product>
+  </PropertyGroup>
+</Project>

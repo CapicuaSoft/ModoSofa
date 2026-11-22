@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#14161F">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refrescar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/web"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Se muestra cuando el PC no responde (apagado, suspendido o fuera de la red). -->
+    <LinearLayout
+        android:id="@+id/sin_conexion"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#14161F"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_sofa" />
+
+        <TextView
+            android:id="@+id/titulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="El PC no responde"
+            android:textColor="#ECEEF6"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/detalle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="28dp"
+            android:gravity="center"
+            android:text="Puede estar apagado o suspendido."
+            android:textColor="#9AA0B8"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/encender"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:backgroundTint="#7C6CF2"
+            android:text="Encender PC"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/reintentar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#262A3D"
+            android:text="Reintentar"
+            android:textAllCaps="false"
+            android:textColor="#ECEEF6" />
+
+        <Button
+            android:id="@+id/ajustes"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#262A3D"
+            android:text="Ajustes"
+            android:textAllCaps="false"
+            android:textColor="#ECEEF6" />
+    </LinearLayout>
+</FrameLayout>
