@@ -14,11 +14,11 @@ val propiedadesLocales = Properties().apply {
 val hayFirma = propiedadesLocales.getProperty("KEYSTORE_PATH") != null
 
 android {
-    namespace = "com.capicua.modosofa"
+    namespace = "com.capicuasoft.modosofa"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.capicua.modosofa"
+        applicationId = "com.capicuasoft.modosofa"
         minSdk = 26
         targetSdk = 35
         versionCode = 2
@@ -63,4 +63,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    // Escáner de QR de Google Play Services: trae su propia pantalla y no pide permiso de cámara.
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
 }

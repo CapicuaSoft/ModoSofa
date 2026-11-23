@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Authors>José Luis Bautista Martín</Authors>
+    <Company>CapicuaSoft</Company>
     <Product>ModoSofá</Product>
+    <Copyright>© 2026 José Luis Bautista Martín · CapicuaSoft · LGPL-2.1</Copyright>
   </PropertyGroup>
 </Project>

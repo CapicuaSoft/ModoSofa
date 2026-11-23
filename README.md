@@ -1,6 +1,6 @@
 # ModoSofá
 
-[![Última versión](https://img.shields.io/github/v/release/jbautistamartin/ModoSofa?label=descargar&color=2E7D32)](https://github.com/jbautistamartin/ModoSofa/releases/latest)
+[![Última versión](https://img.shields.io/github/v/release/CapicuaSoft/ModoSofa?label=descargar&color=2E7D32)](https://github.com/CapicuaSoft/ModoSofa/releases/latest)
 [![Licencia](https://img.shields.io/badge/licencia-LGPL--2.1-blue)](LICENSE)
 [![Donar con PayPal](https://img.shields.io/badge/Donar-PayPal-00457C?logo=paypal&logoColor=white)](https://paypal.me/jbautistamartin)
 
@@ -29,7 +29,7 @@ No necesita permisos de administrador.
 
 ## Descargar
 
-En la [página de releases](https://github.com/jbautistamartin/ModoSofa/releases/latest):
+En la [página de releases](https://github.com/CapicuaSoft/ModoSofa/releases/latest):
 `ModoSofa-Setup-X.Y.Z.exe` para el PC, `modosofa-X.Y.Z.apk` para el móvil, y la Lambda y el modelo
 de Alexa. Los cambios de cada versión están en [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -61,8 +61,8 @@ desde ModoSofá); ver [`docs/INSTALACION.md`](docs/INSTALACION.md).
 ## Estructura
 
 ```
-src/ModoSofa.Nucleo/     Lógica pura y testeable: configuración, estado, acciones, mando, Alexa
-src/ModoSofa.Agente/     El ejecutable: bandeja, API, efectos Win32, overlay, servicios
+src/CapicuaSoft.ModoSofa.Nucleo/     Lógica pura y testeable: configuración, estado, acciones, mando, Alexa
+src/CapicuaSoft.ModoSofa.Agente/     El ejecutable: bandeja, API, efectos Win32, overlay, servicios
   Win32/                 Pantallas (CCD), audio (Core Audio), ventanas, energía, XInput
   Efectos/               Steam, ES-DE, RetroArch, procesos, tele LG, Wake-on-LAN
   Servicios/             Modo sofá, detección de la tele, guardián de foco, mando, estado
@@ -80,8 +80,8 @@ docs/                    Plan, arquitectura e instalación
 
 ```powershell
 dotnet build ModoSofa.slnx
-dotnet test tests/ModoSofa.Nucleo.Tests
-dotnet run --project src/ModoSofa.Agente
+dotnet test tests/CapicuaSoft.ModoSofa.Nucleo.Tests
+dotnet run --project src/CapicuaSoft.ModoSofa.Agente
 ./tools/publicar.ps1        # dist/: agente autocontenido + Lambda + modelo de Alexa (+ APK si existe)
 ./release.ps1 -SoloCompilar # todo lo anterior + APK + instalador, con versión en el nombre
 ./release.ps1               # además etiqueta, sube a GitHub y publica el release

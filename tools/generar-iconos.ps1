@@ -1,4 +1,4 @@
-﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+﻿# ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 # Copyright (C) 2026  José Luis Bautista Martín
 #
 # This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 
 # Genera los iconos a partir del mismo dibujo que el de la bandeja (Interfaz/Icono.cs):
 #  - wwwroot/icono-192.png y icono-512.png (PWA, con margen para iconos «maskable»)
-#  - src/ModoSofa.Agente/ModoSofa.ico (ejecutable e instalador; PNG dentro del ICO, Vista+)
+#  - src/CapicuaSoft.ModoSofa.Agente/ModoSofa.ico (ejecutable e instalador; PNG dentro del ICO, Vista+)
 param([string]$Raiz = (Split-Path $PSScriptRoot -Parent))
 Add-Type -AssemblyName System.Drawing
 
@@ -46,7 +46,7 @@ function Dibujar([int]$lado, [double]$margen, [bool]$fondoRedondeado) {
     return $bmp
 }
 
-$web = Join-Path $Raiz "src\ModoSofa.Agente\wwwroot"
+$web = Join-Path $Raiz "src\CapicuaSoft.ModoSofa.Agente\wwwroot"
 foreach ($lado in 192, 512) {
     $b = Dibujar $lado 0.15 $false
     $b.Save((Join-Path $web "icono-$lado.png"), [System.Drawing.Imaging.ImageFormat]::Png); $b.Dispose()
@@ -93,5 +93,5 @@ for ($i = 0; $i -lt $tamanos.Count; $i++) {
     $desplazamiento += $imagenes[$i].Length
 }
 foreach ($img in $imagenes) { $w.Write($img) }
-[System.IO.File]::WriteAllBytes((Join-Path $Raiz "src\ModoSofa.Agente\ModoSofa.ico"), $salida.ToArray())
+[System.IO.File]::WriteAllBytes((Join-Path $Raiz "src\CapicuaSoft.ModoSofa.Agente\ModoSofa.ico"), $salida.ToArray())
 Write-Host "Iconos generados."

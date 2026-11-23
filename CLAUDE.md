@@ -14,8 +14,8 @@ disparan la conexión de la tele, el mando, el móvil (PWA / app Android) y Alex
 
 ```powershell
 dotnet build ModoSofa.slnx
-dotnet test tests/ModoSofa.Nucleo.Tests
-dotnet run --project src/ModoSofa.Agente
+dotnet test tests/CapicuaSoft.ModoSofa.Nucleo.Tests
+dotnet run --project src/CapicuaSoft.ModoSofa.Agente
 cd alexa/lambda; python -m unittest          # tests de la Lambda
 ./tools/publicar.ps1                         # tests + dist/ (agente, Lambda, modelo, APK)
 ./tools/instalar.ps1                         # dist/ → %LOCALAPPDATA%\Programs\ModoSofa + inicio con Windows
@@ -35,7 +35,7 @@ node tools/captura.mjs <url> <png> [ancho] [alto] [esperaMs]   # captura con Edg
 - **Apunta antes de cambiar:** cualquier cambio nuevo del modo sofá guarda en `EstadoPersistente`
   lo necesario para deshacerlo *antes* de aplicarlo, y `SalirAsync` lo deshace.
 - **Sin elevación:** el manifiesto es `asInvoker`. No añadas nada que requiera administrador.
-- La lógica que no depende de Windows va en `ModoSofa.Nucleo` y lleva tests.
+- La lógica que no depende de Windows va en `CapicuaSoft.ModoSofa.Nucleo` y lleva tests.
 - La interfaz WinForms vive en el hilo STA de `Bandeja`; desde otros hilos, pasa por `EnUi`.
 - **Versión:** única fuente `<Version>` en `Directory.Build.props`; `versionName` del APK debe
   coincidir (release.ps1 lo comprueba). Antes de un release: CHANGELOG.md y docs/NOTAS_RELEASE.md.

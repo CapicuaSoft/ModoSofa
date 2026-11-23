@@ -40,7 +40,7 @@ invitar a un café.
 | `SHA256SUMS.txt` | Sumas de comprobación (las usa la autoactualización) | — |
 
 La instalación paso a paso está en
-[`docs/INSTALACION.md`](https://github.com/jbautistamartin/ModoSofa/blob/main/docs/INSTALACION.md).
+[`docs/INSTALACION.md`](https://github.com/CapicuaSoft/ModoSofa/blob/main/docs/INSTALACION.md).
 
 ModoSofá es gratuito. Si te resulta útil, puedes [invitarme a un café](https://paypal.me/jbautistamartin).
 Es completamente opcional.

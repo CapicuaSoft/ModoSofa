@@ -40,7 +40,7 @@ AlexaController resolvía parte del problema, pero:
 Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pendiente
 
 ### Fase 0 — Base
-- ✅ Solución .NET: `ModoSofa.Nucleo` (lógica pura), `ModoSofa.Agente` (ejecutable), tests
+- ✅ Solución .NET: `CapicuaSoft.ModoSofa.Nucleo` (lógica pura), `CapicuaSoft.ModoSofa.Agente` (ejecutable), tests
 - ✅ Configuración en `%APPDATA%\ModoSofa\config.json` (se crea con valores por defecto)
 - ✅ Estado persistente con todo lo necesario para deshacer (`estado.json`)
 - ✅ Registro de acciones único (mando, móvil, overlay, Alexa y bandeja llaman a lo mismo)
@@ -132,7 +132,7 @@ pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de
 
 ### Releases (22/11/2026, noche)
 
-- Repositorio público: https://github.com/jbautistamartin/ModoSofa (historial revisado: sin la MAC
+- Repositorio público: https://github.com/CapicuaSoft/ModoSofa (historial revisado: sin la MAC
   ni los tokens del PC).
 - Instalador de Inno Setup sin elevación (`installer/`), probado en este PC: instalación
   silenciosa, desinstalación (conserva la configuración) y reinstalación con el mismo token.

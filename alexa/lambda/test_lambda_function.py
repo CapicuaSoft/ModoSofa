@@ -1,4 +1,4 @@
-# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+# ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 # Copyright (C) 2026  José Luis Bautista Martín
 #
 # This library is free software; you can redistribute it and/or

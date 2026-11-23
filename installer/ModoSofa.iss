@@ -1,4 +1,4 @@
-﻿; ModoSofá - Convierte el PC de trabajo en una consola de salón.
+﻿; ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 ; Copyright (C) 2026  José Luis Bautista Martín
 ;
 ; This library is free software; you can redistribute it and/or
@@ -27,19 +27,22 @@
 #endif
 #define Nombre "ModoSofá"
 #define Exe "ModoSofa.exe"
-#define Repo "https://github.com/jbautistamartin/ModoSofa"
+#define Repo "https://github.com/CapicuaSoft/ModoSofa"
 
 [Setup]
 AppId={{6E3C2A51-8F0B-4D2E-9C67-1B5A0D7E4F93}
 AppName={#Nombre}
 AppVersion={#Version}
 AppVerName={#Nombre} {#Version}
-AppPublisher=José Luis Bautista Martín
-AppPublisherURL={#Repo}
+AppPublisher=CapicuaSoft
+AppPublisherURL=https://github.com/CapicuaSoft
+AppCopyright=© 2026 José Luis Bautista Martín · CapicuaSoft
+VersionInfoCompany=CapicuaSoft
 AppSupportURL={#Repo}/issues
 AppUpdatesURL={#Repo}/releases
 VersionInfoVersion={#Version}
-DefaultDirName={autopf}\ModoSofa
+; Las instalaciones previas conservan su carpeta (mismo AppId); las nuevas van bajo CapicuaSoft.
+DefaultDirName={autopf}\CapicuaSoft\ModoSofa
 DisableProgramGroupPage=yes
 DisableDirPage=auto
 PrivilegesRequired=lowest
@@ -48,7 +51,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.17763
 OutputDir=..\dist
 OutputBaseFilename=ModoSofa-Setup-{#Version}
-SetupIconFile=..\src\ModoSofa.Agente\ModoSofa.ico
+SetupIconFile=..\src\CapicuaSoft.ModoSofa.Agente\ModoSofa.ico
 UninstallDisplayIcon={app}\{#Exe}
 UninstallDisplayName={#Nombre}
 LicenseFile=..\LICENSE
@@ -142,6 +145,9 @@ begin
               'Si vas a volver a instalar ModoSofá, responde No y conservarás la vinculación.',
               mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
     begin
+      DelTree(ExpandConstant('{userappdata}\CapicuaSoft\ModoSofa'), True, True, True);
+      DelTree(ExpandConstant('{localappdata}\CapicuaSoft\ModoSofa'), True, True, True);
+      { Las de antes de la 0.2.0, por si nunca llegó a arrancar la versión que las migra. }
       DelTree(ExpandConstant('{userappdata}\ModoSofa'), True, True, True);
       DelTree(ExpandConstant('{localappdata}\ModoSofa'), True, True, True);
     end;

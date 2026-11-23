@@ -3,7 +3,7 @@
 ## 1. El agente en el PC
 
 **Con el instalador** (lo normal): descarga `ModoSofa-Setup-X.Y.Z.exe` de la
-[página de releases](https://github.com/jbautistamartin/ModoSofa/releases/latest) y ejecútalo.
+[página de releases](https://github.com/CapicuaSoft/ModoSofa/releases/latest) y ejecútalo.
 Se instala para tu usuario en `%LOCALAPPDATA%\Programs\ModoSofa`, sin permisos de administrador.
 Opciones: iniciar con Windows, regla de firewall para el móvil (pide administrador una vez y
 además bloquea la entrada a RetroArch desde la red), comandos de red de RetroArch e inicio de

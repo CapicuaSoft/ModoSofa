@@ -1,4 +1,4 @@
-﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+﻿# ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 # Copyright (C) 2026  José Luis Bautista Martín
 #
 # This library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ $dist = Join-Path $raiz "dist"
 Remove-Item $dist -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory $dist | Out-Null
 
-dotnet test (Join-Path $raiz "tests\ModoSofa.Nucleo.Tests") --nologo -v q
+dotnet test (Join-Path $raiz "tests\CapicuaSoft.ModoSofa.Nucleo.Tests") --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw "Los tests fallan." }
 Push-Location (Join-Path $raiz "alexa\lambda")
 python -m unittest -q
@@ -31,7 +31,7 @@ Remove-Item __pycache__ -Recurse -Force -ErrorAction SilentlyContinue
 Pop-Location
 if ($codigo -ne 0) { throw "Los tests de la Lambda fallan." }
 
-dotnet publish (Join-Path $raiz "src\ModoSofa.Agente") -c Release -r win-x64 --self-contained `
+dotnet publish (Join-Path $raiz "src\CapicuaSoft.ModoSofa.Agente") -c Release -r win-x64 --self-contained `
     -p:PublishReadyToRun=true -o (Join-Path $dist "ModoSofa") --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw "Falló la publicación." }
 

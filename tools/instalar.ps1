@@ -1,4 +1,4 @@
-﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+﻿# ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 # Copyright (C) 2026  José Luis Bautista Martín
 #
 # This library is free software; you can redistribute it and/or
@@ -15,26 +15,28 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-# Instala (o actualiza) ModoSofá desde dist/ en %LOCALAPPDATA%\Programs\ModoSofa, lo registra para
-# arrancar con Windows (sin elevación) y lo inicia. Ejecutar antes tools/publicar.ps1.
+# Instala (o actualiza) en este PC lo que hay en dist\ModoSofa usando el instalador, exactamente
+# como lo hace la autoactualización: en silencio, sin repetir las tareas que piden administrador,
+# en la carpeta donde ya estuviera instalado y volviendo a abrir ModoSofá. Ejecutar antes
+# tools\publicar.ps1.
 $ErrorActionPreference = "Stop"
-$origen = Join-Path (Split-Path $PSScriptRoot -Parent) "dist\ModoSofa"
-$destino = Join-Path $env:LOCALAPPDATA "Programs\ModoSofa"
-if (-not (Test-Path (Join-Path $origen "ModoSofa.exe"))) { throw "No hay dist\ModoSofa: ejecuta antes tools/publicar.ps1." }
+$raiz = Split-Path $PSScriptRoot -Parent
+if (-not (Test-Path (Join-Path $raiz "dist\ModoSofa\ModoSofa.exe"))) { throw "No hay dist\ModoSofa: ejecuta antes tools\publicar.ps1." }
 
-# Detener la instancia en marcha. Se cierra sin deshacer el modo sofá: el estado queda en disco y
-# la nueva versión lo recupera al arrancar.
-$enMarcha = Get-Process ModoSofa -ErrorAction SilentlyContinue
-if ($enMarcha) {
-    $enMarcha | Stop-Process -Force
-    $enMarcha | Wait-Process -Timeout 10 -ErrorAction SilentlyContinue
-}
+$version = ([xml](Get-Content (Join-Path $raiz "Directory.Build.props"))).Project.PropertyGroup.Version
+$iscc = Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"
+if (-not (Test-Path $iscc)) { $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+if (-not (Test-Path $iscc)) { throw "Falta Inno Setup 6 (winget install JRSoftware.InnoSetup --scope user)." }
 
-New-Item -ItemType Directory -Force $destino | Out-Null
-robocopy $origen $destino /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
-if ($LASTEXITCODE -ge 8) { throw "robocopy falló ($LASTEXITCODE)." }
+& $iscc /Q "/DVersion=$version" (Join-Path $raiz "installer\ModoSofa.iss")
+if ($LASTEXITCODE -ne 0) { throw "Falló la compilación del instalador." }
 
-$exe = Join-Path $destino "ModoSofa.exe"
-Set-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "ModoSofa" -Value "`"$exe`""
-Start-Process $exe
-Write-Host "ModoSofá instalado en $destino, arrancando con Windows y en marcha."
+$instalador = Join-Path $raiz "dist\ModoSofa-Setup-$version.exe"
+# Sin -Wait: Start-Process -Wait espera también a los hijos, y el instalador deja ModoSofá abierto.
+$p = Start-Process $instalador -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/MERGETASKS="!firewall,!retroarch,!autologon"' -PassThru
+$p.WaitForExit()
+if ($p.ExitCode -ne 0) { throw "El instalador devolvió $($p.ExitCode)." }
+
+$clave = Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | Get-ItemProperty |
+    Where-Object { $_.DisplayName -like "ModoSof*" } | Select-Object -First 1
+Write-Host "ModoSofá $($clave.DisplayVersion) instalado en $($clave.InstallLocation) (editor: $($clave.Publisher))."

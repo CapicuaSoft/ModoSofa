@@ -1,4 +1,4 @@
-﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+﻿# ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 # Copyright (C) 2026  José Luis Bautista Martín
 #
 # This library is free software; you can redistribute it and/or
@@ -99,6 +99,6 @@ Paso "Publicando $etiqueta"
 git -C $raiz tag -a $etiqueta -m "ModoSofá $version"
 git -C $raiz push origin main
 git -C $raiz push origin $etiqueta
-gh release create $etiqueta @artefactos --repo jbautistamartin/ModoSofa --title "ModoSofá $version" --notes-file $notas
+gh release create $etiqueta @artefactos --repo CapicuaSoft/ModoSofa --title "ModoSofá $version" --notes-file $notas
 if ($LASTEXITCODE -ne 0) { Fallar "gh release create falló (la etiqueta ya está subida)." }
-Paso "Publicado: https://github.com/jbautistamartin/ModoSofa/releases/tag/$etiqueta"
+Paso "Publicado: https://github.com/CapicuaSoft/ModoSofa/releases/tag/$etiqueta"

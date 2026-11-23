@@ -1,9 +1,9 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/ModoSofa.Nucleo/ModoSofa.Nucleo.csproj" />
-    <Project Path="src/ModoSofa.Agente/ModoSofa.Agente.csproj" />
+    <Project Path="src/CapicuaSoft.ModoSofa.Nucleo/CapicuaSoft.ModoSofa.Nucleo.csproj" />
+    <Project Path="src/CapicuaSoft.ModoSofa.Agente/CapicuaSoft.ModoSofa.Agente.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/ModoSofa.Nucleo.Tests/ModoSofa.Nucleo.Tests.csproj" />
+    <Project Path="tests/CapicuaSoft.ModoSofa.Nucleo.Tests/CapicuaSoft.ModoSofa.Nucleo.Tests.csproj" />
   </Folder>
 </Solution>

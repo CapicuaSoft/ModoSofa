@@ -1,4 +1,4 @@
-﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+﻿# ModoSofá (CapicuaSoft) - Convierte el PC de trabajo en una consola de salón.
 # Copyright (C) 2026  José Luis Bautista Martín
 #
 # This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
 
 # Funciones compartidas por los pasos del instalador.
 
-$Registro = Join-Path $env:LOCALAPPDATA "ModoSofa\instalacion.log"
+$Registro = Join-Path $env:LOCALAPPDATA "CapicuaSoft\ModoSofa\instalacion.log"
 
 function Escribir-Registro([string]$Texto) {
     New-Item -ItemType Directory -Force (Split-Path $Registro) | Out-Null
