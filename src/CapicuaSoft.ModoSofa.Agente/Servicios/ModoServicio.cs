@@ -56,6 +56,11 @@ public sealed class ModoServicio(
 
     public event Action? Cambio;
 
+    /// <summary>
+    /// Paso en curso al entrar en modo sofá, para la pantalla de espera; <c>null</c> al terminar.
+    /// </summary>
+    public event Action<string?>? Progreso;
+
     public async Task EntrarAsync(CancellationToken ct = default)
     {
         var e = almacen.Valor;
@@ -73,11 +78,30 @@ public sealed class ModoServicio(
         GuardianActivo = true;
         almacen.Guardar();
         Cambio?.Invoke();
+        Progreso?.Invoke("Preparando el salón…");
+        try
+        {
+            await PasosEntrarAsync(e, ct);
+        }
+        finally
+        {
+            Progreso?.Invoke(null);
+        }
 
+        log.LogInformation("Modo sofá activo ({Segundos:0.0} s).", reloj.Elapsed.TotalSeconds);
+        Cambio?.Invoke();
+    }
+
+    private async Task PasosEntrarAsync(EstadoPersistente e, CancellationToken ct)
+    {
         if (tele.Configurada)
+        {
+            Progreso?.Invoke("Encendiendo la tele…");
             await PasoAsync("Tele", () => tele.PrepararAsync(ct));
+        }
 
         var fragmentoTele = config.Tele.NombrePantalla;
+        Progreso?.Invoke("Cambiando la imagen a la tele…");
         await PasoAsync("Pantallas", async () =>
         {
             if (!pantallas.EstaConectada(fragmentoTele))
@@ -104,6 +128,7 @@ public sealed class ModoServicio(
                 if (!avisado)
                 {
                     log.LogInformation("Esperando a que la tele muestre la entrada HDMI del PC…");
+                    Progreso?.Invoke("Esperando a que la tele muestre la entrada HDMI del PC…");
                     avisado = true;
                 }
                 await Task.Delay(3000, ct);
@@ -113,15 +138,18 @@ public sealed class ModoServicio(
 
         if (!string.IsNullOrWhiteSpace(config.Audio.DispositivoSofa))
         {
+            Progreso?.Invoke("Pasando el sonido a la tele…");
             await PasoAsync("Audio", async () =>
             {
                 e.AudioAnterior = audio.SalidaActual();
                 e.VolumenAnterior = audio.Volumen();
                 almacen.Guardar();
                 // Windows crea la salida de audio HDMI de la tele unos segundos después de la imagen
-                // (comprobado con la LG: no existía 2 s después de detectar la pantalla).
+                // (comprobado con la LG: no existía 2 s después de detectar la pantalla). Sin la
+                // tele conectada no va a aparecer: se intenta una vez sin esperar.
                 var fragmento = config.Audio.DispositivoSofa;
-                for (var i = 0; i < 20 && !audio.Existe(fragmento); i++) await Task.Delay(1000, ct);
+                if (pantallas.EstaConectada(fragmentoTele))
+                    for (var i = 0; i < 20 && !audio.Existe(fragmento); i++) await Task.Delay(1000, ct);
                 if (audio.CambiarA(fragmento) && config.Audio.VolumenInicialSofa >= 0)
                     audio.FijarVolumen(config.Audio.VolumenInicialSofa / 100f);
             });
@@ -129,6 +157,7 @@ public sealed class ModoServicio(
 
         if (config.Ventanas.CerrarProcesos.Count > 0)
         {
+            Progreso?.Invoke("Cerrando programas de trabajo…");
             await PasoAsync("Cerrar programas", async () =>
             {
                 e.ProcesosCerrados = await procesos.CerrarListaAsync();
@@ -138,6 +167,7 @@ public sealed class ModoServicio(
 
         if (config.Ventanas.Minimizar)
         {
+            Progreso?.Invoke("Apartando las ventanas de trabajo…");
             await PasoAsync("Minimizar ventanas", () =>
             {
                 var excluidos = new HashSet<string>(config.Ventanas.NoMinimizar, StringComparer.OrdinalIgnoreCase);
@@ -166,12 +196,12 @@ public sealed class ModoServicio(
             return Task.CompletedTask;
         });
 
+        Progreso?.Invoke(config.Lanzadores.AbrirEsdeAlEntrar
+            ? "Abriendo EmulationStation…"
+            : "Abriendo Steam Big Picture… (puede tardar un poco)");
         await PasoAsync("Lanzador", () => config.Lanzadores.AbrirEsdeAlEntrar
             ? lanzadores.AbrirEsDeAsync(ct)
             : lanzadores.BigPictureAsync(ct));
-
-        log.LogInformation("Modo sofá activo ({Segundos:0.0} s).", reloj.Elapsed.TotalSeconds);
-        Cambio?.Invoke();
     }
 
     public async Task SalirAsync(CancellationToken ct = default)

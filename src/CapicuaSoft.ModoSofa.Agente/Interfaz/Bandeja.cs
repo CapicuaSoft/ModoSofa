@@ -56,6 +56,7 @@ public sealed class Bandeja(
     // pero así queda claro que la bandeja tampoco lo necesita para existir.
     private ActualizacionServicio? _actualizacion;
     private VentanaOverlay? _overlay;
+    private VentanaEspera? _espera;
     private bool _pausamosRetroArch;
 
     public bool Visible => _overlay?.Visible ?? false;
@@ -87,6 +88,7 @@ public sealed class Bandeja(
         _hilo.Start();
 
         modo.Cambio += () => EnUi(ActualizarIcono);
+        modo.Progreso += paso => EnUi(() => Espera(paso));
         _actualizacion.Cambio += () => EnUi(ActualizarIcono);
         _actualizacion.Nueva += v => EnUi(() => _icono!.ShowBalloonTip(10000, $"ModoSofá {v.Version} disponible",
             config.Actualizaciones.InstalarSolo
@@ -140,6 +142,20 @@ public sealed class Bandeja(
         {
             log.LogDebug(ex, "Pausa de RetroArch.");
         }
+    }
+
+    // --- Pantalla de espera ----------------------------------------------------------------
+
+    private void Espera(string? paso)
+    {
+        if (paso is null)
+        {
+            _espera?.Ocultar();
+            return;
+        }
+        if (!config.Lanzadores.PantallaEspera) return;
+        _espera ??= new VentanaEspera();
+        _espera.Mostrar(paso);
     }
 
     // --- Icono -----------------------------------------------------------------------------

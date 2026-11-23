@@ -62,8 +62,25 @@ public sealed class EstadoPersistente
 
 public sealed record VentanaGuardada(long Hwnd, int ProcesoId, string Proceso, string Titulo, string Posicion);
 
-/// <summary>Un proceso cerrado al entrar. <see cref="Aumid"/> se usa para apps empaquetadas (MSIX).</summary>
-public sealed record ProcesoCerrado(string Nombre, string? Ruta, string? Aumid);
+/// <summary>
+/// Un proceso cerrado al entrar. <see cref="Aumid"/> se usa para apps empaquetadas (MSIX).
+/// <see cref="ConVentana"/> es falso si solo estaba en el área de notificaciones: al relanzarlo
+/// se arranca en segundo plano en vez de abrir su ventana.
+/// </summary>
+public sealed record ProcesoCerrado(string Nombre, string? Ruta, string? Aumid, bool ConVentana = true);
+
+/// <summary>Cómo arrancar sin ventana los programas que lo permiten (lo que usa su inicio con Windows).</summary>
+public static class ArranqueSegundoPlano
+{
+    private static readonly Dictionary<string, string> Enlaces = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Teams nuevo: lo que lanza su msteams_autostarter.exe al iniciar Windows.
+        ["ms-teams"] = "msteams:system-initiated",
+    };
+
+    /// <summary>Enlace que arranca el programa en segundo plano, o <c>null</c> si no se conoce ninguno.</summary>
+    public static string? Enlace(string proceso) => Enlaces.GetValueOrDefault(proceso);
+}
 
 /// <summary>Credenciales generadas en el primer arranque. <c>%APPDATA%\ModoSofa\secretos.json</c>.</summary>
 public sealed class Secretos

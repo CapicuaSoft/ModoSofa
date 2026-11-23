@@ -253,3 +253,20 @@ public class ConfiguracionTests
         Assert.DoesNotContain(d.Procesar(Botones.Back | Botones.DPadDown, 3000), e => e is AlternarOverlay);
     }
 }
+
+public class ArranqueSegundoPlanoTests
+{
+    [Fact]
+    public void Teams_arranca_en_segundo_plano_como_su_inicio_con_windows()
+    {
+        Assert.Equal("msteams:system-initiated", ArranqueSegundoPlano.Enlace("MS-Teams"));
+        Assert.Null(ArranqueSegundoPlano.Enlace("outlook"));
+    }
+
+    [Fact]
+    public void Un_estado_antiguo_sin_ConVentana_se_relanza_con_ventana()
+    {
+        var p = System.Text.Json.JsonSerializer.Deserialize<ProcesoCerrado>("""{"Nombre":"ms-teams","Ruta":null,"Aumid":null}""")!;
+        Assert.True(p.ConVentana);
+    }
+}

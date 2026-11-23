@@ -161,6 +161,12 @@ public sealed class LanzadoresConfig
     /// <summary>Abrir ES-DE directamente al entrar (si no, se entra en Steam Big Picture).</summary>
     public bool AbrirEsdeAlEntrar { get; set; } = false;
 
+    /// <summary>
+    /// Pantalla de espera a pantalla completa mientras se entra en modo sofá: Steam tarda en
+    /// arrancar y, sin ella, parece que el PC no hace nada.
+    /// </summary>
+    public bool PantallaEspera { get; set; } = true;
+
     public int RetroArchPuerto { get; set; } = 55355;
 
     /// <summary>Fragmentos de ruta que identifican el ejecutable de un juego.</summary>

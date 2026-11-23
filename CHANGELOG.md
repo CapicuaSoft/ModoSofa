@@ -8,6 +8,21 @@ Las notas largas de cada release (artefactos e instalación) están en
 
 ## [No publicado]
 
+### Añadido
+
+- **Pantalla de espera al entrar en modo sofá:** mientras se cambia a la tele y arranca Steam
+  (que tarda), la pantalla muestra «Entrando en modo sofá» con el paso en curso y los segundos
+  que lleva. Se cierra sola cuando aparece Big Picture (o ES-DE). No le quita el foco a nada, y
+  un clic la cierra. Se desactiva con `"Lanzadores": { "PantallaEspera": false }`.
+
+### Corregido
+
+- **Teams ya no abre su ventana al volver a trabajar** si al entrar estaba solo en el área de
+  notificaciones: se relanza en segundo plano, como al iniciar Windows. Para otros programas
+  que estaban en la bandeja, se minimiza su ventana cuando aparece.
+- **Sin la tele conectada, el paso del audio ya no espera 20 s** a una salida HDMI que no va a
+  aparecer.
+
 ## [0.2.0] - 2026-11-22
 
 ### Añadido
