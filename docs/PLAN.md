@@ -203,16 +203,18 @@ Probado en el equipo real con el usuario delante:
 - La tarea programada de AlexaController ya no existe en este PC (ni procesos de AlexaController
   o ngrok): no hubo que quitar nada.
 
+Red de casa marcada como privada. Firewall revisado con `installer/firewall.ps1`: quitadas las dos
+reglas «ModoSofa» que Windows creó para el ejecutable de desarrollo (TCP y UDP, redes privadas y
+públicas); quedan «ModoSofá» (solo redes privadas, programa instalado) y el bloqueo de RetroArch.
+
 Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrarla con un clic y
 `Lanzadores.PantallaEspera: false`.
 
 ## Pendiente
-1. Marcar la red de casa como **privada** (Windows creó reglas «Permitir» para redes públicas) y
-   revisar el firewall con `tools/permitir-firewall.ps1`.
-2. Instalar el APK 1.0.0 en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
-3. Comprobar la autoactualización real con la próxima versión (la 1.0.0 es la primera instalada
+1. Instalar el APK 1.0.0 en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
+2. Comprobar la autoactualización real con la próxima versión (la 1.0.0 es la primera instalada
    desde un release que sabe actualizarse sola).
-4. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
+3. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
    `docs/INSTALACION.md`. Después, apagar AlexaController del todo.
-5. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
+4. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
    con el menú abierto.
