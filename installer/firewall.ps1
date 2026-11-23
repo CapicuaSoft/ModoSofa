@@ -23,11 +23,19 @@ param([Parameter(Mandatory)][string]$Programa, [string]$EsdeExe = "C:\Games\Emul
 . (Join-Path $PSScriptRoot "comun.ps1")
 
 Get-NetFirewallRule -DisplayName "ModoSofá*" -ErrorAction SilentlyContinue | Remove-NetFirewallRule
+# Las que crea Windows al contestar su aviso («modosofa.exe», «ModoSofa», a menudo para redes
+# públicas) también se quitan: solo debe quedar el permiso para redes privadas.
+Get-NetFirewallApplicationFilter -ErrorAction SilentlyContinue |
+    Where-Object { $_.Program -like "*\modosofa.exe" } |
+    Get-NetFirewallRule -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 New-NetFirewallRule -DisplayName "ModoSofá" -Description "Panel del móvil (solo redes privadas)." `
     -Direction Inbound -Program $Programa -Protocol TCP -Profile Private -Action Allow | Out-Null
 Escribir-Registro "Firewall: ModoSofá permitido en redes privadas."
 
 foreach ($exe in Buscar-RetroArch $EsdeExe) {
+    # También aquí sobran las reglas que creó Windows al preguntar por RetroArch.
+    Get-NetFirewallApplicationFilter -Program $exe -ErrorAction SilentlyContinue |
+        Get-NetFirewallRule -ErrorAction SilentlyContinue | Remove-NetFirewallRule
     New-NetFirewallRule -DisplayName "ModoSofá: bloquear RetroArch" -Description "Los comandos de red de RetroArch solo desde este PC." `
         -Direction Inbound -Program $exe -Action Block | Out-Null
     Escribir-Registro "Firewall: entrada bloqueada para $exe."
