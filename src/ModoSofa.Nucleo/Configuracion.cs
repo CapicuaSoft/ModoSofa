@@ -24,6 +24,7 @@ public sealed class Configuracion
     public MandoConfig Mando { get; set; } = new();
     public GuardianConfig Guardian { get; set; } = new();
     public AlexaConfig Alexa { get; set; } = new();
+    public ActualizacionesConfig Actualizaciones { get; set; } = new();
 
     public static readonly JsonSerializerOptions OpcionesJson = new()
     {
@@ -168,6 +169,12 @@ public sealed class GuardianConfig
     /// <summary>Durante el modo sofá, si una ventana de trabajo se pone delante, se minimiza.</summary>
     public bool Activado { get; set; } = true;
     public int IntervaloMs { get; set; } = 750;
+}
+
+public sealed class ActualizacionesConfig
+{
+    /// <summary>Preguntar a GitHub una vez al día si hay un release más nuevo. Solo avisa: nunca instala.</summary>
+    public bool Comprobar { get; set; } = true;
 }
 
 public sealed class AlexaConfig

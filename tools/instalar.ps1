@@ -1,4 +1,4 @@
-# Instala (o actualiza) ModoSofá desde dist/ en %LOCALAPPDATA%\Programs\ModoSofa, lo registra para
+﻿# Instala (o actualiza) ModoSofá desde dist/ en %LOCALAPPDATA%\Programs\ModoSofa, lo registra para
 # arrancar con Windows (sin elevación) y lo inicia. Ejecutar antes tools/publicar.ps1.
 $ErrorActionPreference = "Stop"
 $origen = Join-Path (Split-Path $PSScriptRoot -Parent) "dist\ModoSofa"

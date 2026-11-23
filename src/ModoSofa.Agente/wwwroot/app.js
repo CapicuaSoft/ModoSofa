@@ -70,6 +70,12 @@
     $("ocupado").hidden = !e.ocupado;
     $("ocupado-texto").textContent = e.ocupado || "";
     $("principal").textContent = sofa ? "Volver a trabajar" : "Activar modo sofá";
+    const nueva = e.versionNueva;
+    $("version-nueva").hidden = !nueva;
+    if (nueva) {
+      $("version-nueva").href = nueva.url;
+      $("version-nueva-texto").textContent = `${nueva.version} (tienes la ${e.version}). Descarga el instalador en el PC.`;
+    }
     $("principal").classList.toggle("sofa", sofa);
     document.querySelectorAll('[data-id="guardian.alternar"] .sub')
       .forEach(s => s.textContent = e.guardian ? "Activo" : "En pausa");

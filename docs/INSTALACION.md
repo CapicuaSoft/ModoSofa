@@ -2,6 +2,16 @@
 
 ## 1. El agente en el PC
 
+**Con el instalador** (lo normal): descarga `ModoSofa-Setup-X.Y.Z.exe` de la
+[página de releases](https://github.com/jbautistamartin/ModoSofa/releases/latest) y ejecútalo.
+Se instala para tu usuario en `%LOCALAPPDATA%\Programs\ModoSofa`, sin permisos de administrador.
+Opciones: iniciar con Windows, regla de firewall para el móvil (pide administrador una vez y
+además bloquea la entrada a RetroArch desde la red), comandos de red de RetroArch e inicio de
+sesión automático. Lo que hace cada paso queda en `%LOCALAPPDATA%\ModoSofa\instalacion.log`.
+Se desinstala desde *Configuración → Aplicaciones*; al final pregunta si borrar la configuración.
+
+**Desde el repositorio** (desarrollo):
+
 1. `./tools/publicar.ps1` genera `dist/` (agente autocontenido, Lambda, modelo de Alexa y APK).
 2. `./tools/instalar.ps1` lo copia a `%LOCALAPPDATA%\Programs\ModoSofa`, lo registra para arrancar
    con Windows y lo inicia. Sirve también para actualizar: para la instancia en marcha y la

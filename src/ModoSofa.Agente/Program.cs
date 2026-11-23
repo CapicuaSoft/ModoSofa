@@ -76,6 +76,8 @@ s.AddHostedService(sp => sp.GetRequiredService<MandoServicio>());
 s.AddSingleton<PanelEstado>();
 s.AddHostedService(sp => sp.GetRequiredService<PanelEstado>());
 s.AddHostedService<GuardianFoco>();
+s.AddSingleton<ActualizacionServicio>();
+s.AddHostedService(sp => sp.GetRequiredService<ActualizacionServicio>());
 
 s.ConfigureHttpJsonOptions(o => o.SerializerOptions.PropertyNameCaseInsensitive = true);
 

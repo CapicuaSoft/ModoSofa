@@ -32,6 +32,7 @@ public sealed class Bandeja(
     private ToolStripMenuItem? _titulo, _alternarModo;
     private VentanaOverlay? _overlay;
     private bool _pausamosRetroArch;
+    private string? _urlNotificacion;
 
     public bool Visible => _overlay?.Visible ?? false;
 
@@ -66,6 +67,13 @@ public sealed class Bandeja(
         _hilo?.Join(3000);
         return Task.CompletedTask;
     }
+
+    /// <summary>Globo de notificación; al pulsarlo se abre la URL.</summary>
+    public void Notificar(string titulo, string texto, string url) => EnUi(() =>
+    {
+        _urlNotificacion = url;
+        _icono!.ShowBalloonTip(10000, titulo, texto, ToolTipIcon.Info);
+    });
 
     // --- Overlay ---------------------------------------------------------------------------
 
@@ -146,6 +154,10 @@ public sealed class Bandeja(
             Visible = true,
         };
         _icono.DoubleClick += (_, _) => AbrirPanel();
+        _icono.BalloonTipClicked += (_, _) =>
+        {
+            if (_urlNotificacion is not null) Process.Start(new ProcessStartInfo(_urlNotificacion) { UseShellExecute = true });
+        };
         ActualizarIcono();
     }
 

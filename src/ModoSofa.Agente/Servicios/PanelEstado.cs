@@ -18,12 +18,14 @@ public sealed record Instantanea(
     bool Overlay,
     int Mandos,
     string? Ocupado,
-    string Version);
+    string Version,
+    VersionNueva? VersionNueva);
 
 /// <summary>Estado en vivo para el móvil y el overlay; se publica por SSE cuando cambia.</summary>
 public sealed class PanelEstado(
     ModoServicio modo, VigilantePantallas vigilante, Audio audio, Lanzadores lanzadores, MandoServicio mando,
-    IOverlay overlay, RegistroAcciones registro, Eventos eventos, ILogger<PanelEstado> log) : BackgroundService
+    IOverlay overlay, RegistroAcciones registro, Eventos eventos, ActualizacionServicio actualizacion,
+    ILogger<PanelEstado> log) : BackgroundService
 {
     public static readonly string Version =
         Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "?";
@@ -49,7 +51,8 @@ public sealed class PanelEstado(
             overlay.Visible,
             mando.Conectados,
             _ocupado,
-            Version);
+            Version,
+            actualizacion.Disponible);
     }
 
     public void Avisar() => _despertar.Release();
@@ -71,6 +74,7 @@ public sealed class PanelEstado(
             Avisar();
         };
         modo.Cambio += Avisar;
+        actualizacion.Cambio += Avisar;
 
         string? anterior = null;
         while (!ct.IsCancellationRequested)

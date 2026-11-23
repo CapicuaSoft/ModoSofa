@@ -1,4 +1,4 @@
-# Genera dist/: el agente autocontenido (no necesita .NET instalado) y el zip de la Lambda.
+﻿# Genera dist/: el agente autocontenido (no necesita .NET instalado) y el zip de la Lambda.
 $ErrorActionPreference = "Stop"
 $raiz = Split-Path $PSScriptRoot -Parent
 $dist = Join-Path $raiz "dist"

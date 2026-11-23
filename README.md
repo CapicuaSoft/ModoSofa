@@ -1,5 +1,9 @@
 # ModoSofá
 
+[![Última versión](https://img.shields.io/github/v/release/jbautistamartin/ModoSofa?label=descargar&color=2E7D32)](https://github.com/jbautistamartin/ModoSofa/releases/latest)
+[![Licencia](https://img.shields.io/badge/licencia-LGPL--2.1-blue)](LICENSE)
+[![Donar con PayPal](https://img.shields.io/badge/Donar-PayPal-00457C?logo=paypal&logoColor=white)](https://paypal.me/jbautistamartin)
+
 Convierte el PC de trabajo en una consola de salón y lo deja después exactamente como estaba.
 
 Enchufas la tele y ModoSofá se encarga del resto:
@@ -22,6 +26,13 @@ Se maneja con:
 | **Bandeja** | Icono junto al reloj |
 
 No necesita permisos de administrador.
+
+## Descargar
+
+En la [página de releases](https://github.com/jbautistamartin/ModoSofa/releases/latest):
+`ModoSofa-Setup-X.Y.Z.exe` para el PC, `modosofa-X.Y.Z.apk` para el móvil, y la Lambda y el modelo
+de Alexa. Actualizar es ejecutar el instalador nuevo: conserva la configuración y la vinculación.
+Los cambios de cada versión están en [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Atajos del mando
 
@@ -49,7 +60,8 @@ src/ModoSofa.Agente/     El ejecutable: bandeja, API, efectos Win32, overlay, se
 tests/                   Tests del núcleo
 alexa/                   Lambda genérica y modelo de interacción es-ES
 android/                 App Android: envoltorio de la PWA + Wake-on-LAN
-tools/                   Firewall, publicación, iconos, capturas de prueba
+installer/               Instalador (Inno Setup) y los pasos que ejecuta
+tools/                   Publicación, instalación desde el repo, firewall, iconos, capturas
 docs/                    Plan, arquitectura e instalación
 ```
 
@@ -60,7 +72,13 @@ dotnet build ModoSofa.slnx
 dotnet test tests/ModoSofa.Nucleo.Tests
 dotnet run --project src/ModoSofa.Agente
 ./tools/publicar.ps1        # dist/: agente autocontenido + Lambda + modelo de Alexa (+ APK si existe)
+./release.ps1 -SoloCompilar # todo lo anterior + APK + instalador, con versión en el nombre
+./release.ps1               # además etiqueta, sube a GitHub y publica el release
 ```
+
+Requisitos para compilar: SDK de .NET 11, Python 3, Inno Setup 6
+(`winget install JRSoftware.InnoSetup --scope user`) y, para el APK, Android Studio (su JBR) con
+el SDK en `%LOCALAPPDATA%\Android\Sdk`.
 
 Instalación y puesta en marcha: [`docs/INSTALACION.md`](docs/INSTALACION.md).
 Cómo funciona por dentro: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).

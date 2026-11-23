@@ -1,4 +1,4 @@
-# Permite que el móvil llegue al agente por la red de casa. Ejecutar UNA vez como administrador.
+﻿# Permite que el móvil llegue al agente por la red de casa. Ejecutar UNA vez como administrador.
 # Solo abre el puerto en redes privadas (la Wi-Fi de casa), nunca en redes públicas.
 param([int]$Puerto = 5790)
 
