@@ -140,6 +140,20 @@ pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de
   Lambda, modelo de Alexa y SHA256SUMS.
 - Aviso de versión nueva (bandeja y móvil) contra la API de releases de GitHub.
 
+### 0.2.0: autoactualización, donación y licencia (22/11/2026, noche)
+
+- Mismo patrón que SilentRunner y SMSRelay: comprobación diaria con ETag y aviso recordado,
+  «Acerca de» con «Invitar a un café» (también en el menú de la bandeja) y LGPL-2.1 con cabecera
+  en cada fichero.
+- PC: se actualiza solo con el instalador del release, verificado por SHA-256, solo en modo
+  trabajo. Probado en este PC: instalador 0.2.0 sobre 0.1.0 con los parámetros del actualizador →
+  0.2.0 en marcha, mismo token, inicio con Windows conservado y sin pedir administrador.
+- Android: busca, descarga y verifica el APK; Android pide confirmar.
+- **Pendiente de publicar**: commit `0.2.0` solo en local y artefactos en `dist/`. Publicar exige
+  `git push` + `./release.ps1` (el script se niega con el árbol sucio: ejecutar con todo
+  confirmado). Hasta entonces no se puede probar la cadena completa contra GitHub
+  (descarga + verificación + instalación automática).
+
 ## Pendiente de hacer en el equipo real
 1. Responder a los avisos del firewall: **Permitir** ModoSofá en redes privadas (o
    `tools/permitir-firewall.ps1`) y **Cancelar** el de RetroArch.
