@@ -2,11 +2,12 @@
 
 ## 1. El agente en el PC
 
-1. Genera el paquete con `./tools/publicar.ps1`, o compila con `dotnet build`.
-2. Copia `dist/ModoSofa` donde quieras (p. ej. `C:\Programas\ModoSofa`) y ejecuta `ModoSofa.exe`.
+1. `./tools/publicar.ps1` genera `dist/` (agente autocontenido, Lambda, modelo de Alexa y APK).
+2. `./tools/instalar.ps1` lo copia a `%LOCALAPPDATA%\Programs\ModoSofa`, lo registra para arrancar
+   con Windows y lo inicia. Sirve también para actualizar: para la instancia en marcha y la
+   sustituye (si estaba en modo sofá, la nueva versión lo recupera al arrancar).
    Aparece un sofá en la bandeja del sistema.
-3. Clic derecho en el icono → **Iniciar con Windows**.
-4. Para que el móvil llegue por la Wi-Fi de casa: ejecuta `tools/permitir-firewall.ps1` (pide
+3. Para que el móvil llegue por la Wi-Fi de casa: ejecuta `tools/permitir-firewall.ps1` (pide
    permisos de administrador una sola vez; abre el puerto 5790 solo en redes privadas).
 
 > AlexaController usa el puerto 5780; ModoSofá usa el 5790 para que puedan convivir mientras
@@ -50,8 +51,11 @@ Por HTTP en la red local Chrome crea un acceso directo; para que se instale como
 La PWA no puede encender el PC apagado. La app de `android/` es la misma web dentro de un
 envoltorio que sí envía el paquete Wake-on-LAN.
 
-1. Instala el SDK de Android (abriendo Android Studio una vez) y compila:
-   `cd android; ./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`.
+1. Compila: `cd android; ./gradlew assembleRelease` → `app/build/outputs/apk/release/app-release.apk`
+   (`tools/publicar.ps1` lo copia a `dist/modosofa.apk`). Necesita el SDK en
+   `%LOCALAPPDATA%\Android\Sdk` y `JAVA_HOME` apuntando al JBR de Android Studio. Se firma con
+   `C:\Proyectos\Claves\capicua.jks` si `android/local.properties` trae `KEYSTORE_PATH`,
+   `KEYSTORE_PASSWORD`, `KEY_ALIAS` y `KEY_PASSWORD` (los mismos que GameController).
 2. En la app, **Ajustes** → pega el enlace (bandeja → *Vincular móvil…* → *Copiar enlace*).
 3. La MAC del PC se guarda sola la primera vez que conecta.
 4. En el PC: activa *Wake on LAN* en la BIOS y, en el Administrador de dispositivos → adaptador

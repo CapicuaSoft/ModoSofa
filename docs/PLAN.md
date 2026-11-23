@@ -76,8 +76,8 @@ Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pe
 
 ### Fase 4 — Extras
 - 🟡 Tele LG webOS: encender por WoL, cambiar a la entrada HDMI, apagar al salir
-- 🟡 APK Android: código hecho (envoltorio de la PWA + Wake-on-LAN + pantalla sin conexión)
-- ⬜ Compilar el APK: **no hay SDK de Android instalado** en este PC (la ruta de GameController ya no existe)
+- 🟡 APK Android: envoltorio de la PWA + Wake-on-LAN + pantalla sin conexión. Compilado y firmado
+  con `capicua.jks` (mismo certificado que GameController); falta instalarlo en el móvil
 - ⬜ Modo «No molestar» de Windows: no hay API pública; queda fuera
 
 ## Verificado en este PC (22/11/2026)
@@ -119,10 +119,26 @@ la red puede enviarle órdenes.
 **No probado todavía:** con dos pantallas reales (tele + monitor), audio HDMI de la tele, atajos
 pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de Alexa.
 
+### Hecho después (22/11/2026, por la tarde)
+
+- SDK de Android instalado en `%LOCALAPPDATA%\Android\Sdk` (plataforma 35, build-tools 35.0.0,
+  platform-tools). Es la ruta que espera también GameController.
+- APK release firmado (`dist/modosofa.apk`). El lint de release está desactivado: AGP 8.5 se cae
+  con el JDK 25 del JBR de Android Studio.
+- 35 tests del núcleo (EDID, Wake-on-LAN y RetroArch extraídos del agente) y 7 de la Lambda.
+- ModoSofá instalado con `tools/instalar.ps1` en `%LOCALAPPDATA%\Programs\ModoSofa`, con inicio
+  con Windows y configuración por defecto (entra solo al detectar «LG TV»).
+- AlexaController **sigue activo** a propósito: es la única vía de voz hasta probar el skill nuevo.
+
 ## Pendiente de hacer en el equipo real
-1. Arrancar el agente y revisar `/api/diagnostico` (nombres de pantallas y audio) para ajustar
+1. Responder a los avisos del firewall: **Permitir** ModoSofá en redes privadas (o
+   `tools/permitir-firewall.ps1`) y **Cancelar** el de RetroArch.
+2. Con la tele conectada, revisar `/api/diagnostico` (nombres de pantallas y audio) para ajustar
    `Tele.NombrePantalla` y `Audio.DispositivoSofa`.
-2. Ajustar `Ventanas.CerrarProcesos` con los programas de trabajo reales.
-3. Probar el ciclo completo enchufando la tele.
-4. Emparejar la tele LG (aceptar el aviso en pantalla la primera vez).
-5. Tailscale, Lambda y skill de Alexa según `docs/INSTALACION.md`.
+3. Ajustar `Ventanas.CerrarProcesos` con los programas de trabajo reales.
+4. Probar el ciclo completo enchufando la tele, y los atajos con el mando físico (comprobar que
+   Steam Input no se queda con Back+Start).
+5. Instalar `dist/modosofa.apk` en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
+6. Emparejar la tele LG (aceptar el aviso en pantalla la primera vez).
+7. Tailscale, Lambda y skill de Alexa según `docs/INSTALACION.md`.
+8. Cuando el skill nuevo funcione: retirar la tarea programada y el túnel ngrok de AlexaController.

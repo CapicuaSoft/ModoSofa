@@ -49,6 +49,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    lint {
+        // El lint de AGP 8.5 se cae con el JDK 25 del JBR de Android Studio («> 25.0.4») antes de
+        // analizar nada. No es un problema del código; se puede reactivar al subir de AGP.
+        checkReleaseBuilds = false
+    }
 }
 
 dependencies {

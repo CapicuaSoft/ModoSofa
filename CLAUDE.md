@@ -16,8 +16,10 @@ disparan la conexión de la tele, el mando, el móvil (PWA / app Android) y Alex
 dotnet build ModoSofa.slnx
 dotnet test tests/ModoSofa.Nucleo.Tests
 dotnet run --project src/ModoSofa.Agente
-./tools/publicar.ps1                         # dist/
-cd android; ./gradlew assembleDebug          # necesita el SDK de Android (JAVA_HOME = jbr de Android Studio)
+cd alexa/lambda; python -m unittest          # tests de la Lambda
+./tools/publicar.ps1                         # tests + dist/ (agente, Lambda, modelo, APK)
+./tools/instalar.ps1                         # dist/ → %LOCALAPPDATA%\Programs\ModoSofa + inicio con Windows
+cd android; ./gradlew assembleRelease        # SDK en %LOCALAPPDATA%\Android\Sdk; JAVA_HOME = jbr de Android Studio
 node tools/captura.mjs <url> <png> [ancho] [alto] [esperaMs]   # captura con Edge headless + errores de consola
 ```
 
