@@ -20,7 +20,7 @@ Se maneja con:
 
 | Canal | Cómo |
 |---|---|
-| **Mando** | `Back + Start` mantenido abre un menú en la tele; `Back + Start + botón` son atajos |
+| **Mando** | `Back` mantenido 2 s abre un menú en la tele |
 | **Móvil** | Panel web instalable (PWA) o la app Android, que además enciende el PC |
 | **Alexa** | «Alexa, dile a modo sofá que cierre el juego» |
 | **Bandeja** | Icono junto al reloj |
@@ -39,18 +39,24 @@ trabajo (nunca a mitad de una partida). La app Android avisa, descarga y verific
 pide confirmar la instalación. Configuración, vinculación del móvil y de Alexa se conservan.
 Para que solo avise: `"Actualizaciones": { "InstalarSolo": false }`.
 
-## Atajos del mando
+## El mando
 
-| Combinación | Acción |
-|---|---|
-| `Back + Start` (mantener 0,8 s) | Abrir o cerrar el menú en la tele |
-| `Back + Start + B` | Cerrar el juego y volver a ES-DE o Steam |
-| `Back + Start + Y` | Traer el juego al frente |
-| `Back + Start + X` | Silenciar |
-| `Back + Start + ↑ / ↓` | Subir o bajar el volumen |
+**Mantén `Back` 2 segundos** y aparece el menú de ModoSofá en la tele, encima de lo que esté en
+pantalla. Mientras está abierto, el juego no recibe las pulsaciones (y RetroArch se pausa).
+Desde el menú: cerrar lo que hay delante, enfocar el juego, volumen (◀ ▶), ES-DE, Steam, volver a
+trabajar y apagar o reiniciar el equipo. **B** lo cierra y devuelve el foco al juego.
 
-Se configuran en `Mando.Atajos`. No chocan con los de Steam (botón Guide) ni con los de RetroArch
-(L1 + R1 + Start + Select abre su menú; ModoSofá exige la combinación exacta).
+**«Cerrar juego»** actúa sobre lo que tienes delante:
+
+| Delante | Qué cierra | Confirmación |
+|---|---|---|
+| RetroArch | El juego, guardando la partida; vuelve a ES-DE | No |
+| ES-DE | EmulationStation; vuelve a Steam | No |
+| Un juego de Steam | El juego; vuelve a Steam | Sí: lo no guardado se pierde |
+
+`Back + Start` se descartó en las pruebas: lo usa Steam (abre su menú y su teclado en pantalla).
+En RetroArch se recomienda *mantener Start* para su menú y ninguna combinación para salir (se sale
+desde ModoSofá); ver [`docs/INSTALACION.md`](docs/INSTALACION.md).
 
 ## Estructura
 

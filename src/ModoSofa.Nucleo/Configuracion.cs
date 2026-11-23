@@ -163,19 +163,20 @@ public sealed class MandoConfig
 {
     public bool Activado { get; set; } = true;
 
-    /// <summary>Combinación que, mantenida, abre o cierra el overlay.</summary>
-    public string ComboOverlay { get; set; } = "Back+Start";
-    public int MantenerMs { get; set; } = 800;
+    /// <summary>
+    /// Combinación que, mantenida <see cref="MantenerMs"/>, abre o cierra el menú en la tele.
+    /// Back solo: Back+Start lo usa Steam (abre su menú y su teclado en pantalla), y en RetroArch
+    /// Select (= Back) ya no forma parte de ninguna combinación. Probado en el equipo real.
+    /// </summary>
+    public string ComboOverlay { get; set; } = "Back";
+    public int MantenerMs { get; set; } = 2000;
 
-    /// <summary>Combinación exacta → id de acción.</summary>
-    public Dictionary<string, string> Atajos { get; set; } = new()
-    {
-        ["Back+Start+B"] = "juego.cerrar",
-        ["Back+Start+Y"] = "juego.enfocar",
-        ["Back+Start+X"] = "volumen.silenciar",
-        ["Back+Start+DPadUp"] = "volumen.subir",
-        ["Back+Start+DPadDown"] = "volumen.bajar",
-    };
+    /// <summary>
+    /// Combinación exacta → id de acción, sin abrir el menú. Vacío por defecto: cualquier
+    /// combinación que no use el juego la usa Steam o RetroArch, y todo está en el menú.
+    /// Ejemplo: { "LB+RB+B": "juego.cerrar" }.
+    /// </summary>
+    public Dictionary<string, string> Atajos { get; set; } = new();
 
     /// <summary>Pausar RetroArch mientras el overlay está abierto.</summary>
     public bool PausarRetroArchConOverlay { get; set; } = true;

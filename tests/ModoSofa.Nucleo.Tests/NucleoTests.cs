@@ -36,7 +36,13 @@ public class CombosTests
 
 public class DetectorCombosTests
 {
-    private static DetectorCombos Nuevo() => DetectorCombos.DesdeConfig(new MandoConfig { MantenerMs = 800 });
+    // Configuración explícita: los tests prueban el detector, no los valores por defecto.
+    private static DetectorCombos Nuevo() => DetectorCombos.DesdeConfig(new MandoConfig
+    {
+        ComboOverlay = "Back+Start",
+        MantenerMs = 800,
+        Atajos = new() { ["Back+Start+B"] = "juego.cerrar" },
+    });
 
     private const Botones BackStart = Botones.Back | Botones.Start;
 
@@ -219,7 +225,7 @@ public class ConfiguracionTests
         Assert.Equal("LG TV SSCR2", config.Tele.NombrePantalla);
         Assert.True(config.Tele.EntrarAlConectar);
         Assert.Equal(5790, config.Puerto);
-        Assert.Contains("Back+Start+B", config.Mando.Atajos.Keys);
+        Assert.Equal("Back", config.Mando.ComboOverlay);
     }
 
     [Fact]
@@ -230,9 +236,20 @@ public class ConfiguracionTests
     }
 
     [Fact]
-    public void Los_atajos_por_defecto_son_validos()
+    public void Por_defecto_Back_mantenido_2_s_abre_el_menu_y_no_hay_atajos()
     {
         var d = DetectorCombos.DesdeConfig(new MandoConfig());
-        Assert.NotNull(d);
+        Assert.DoesNotContain(d.Procesar(Botones.Back, 0), e => e is AlternarOverlay);
+        Assert.DoesNotContain(d.Procesar(Botones.Back, 1900), e => e is AlternarOverlay);
+        Assert.Contains(d.Procesar(Botones.Back, 2000), e => e is AlternarOverlay);
+        Assert.Empty(new MandoConfig().Atajos);
+    }
+
+    [Fact]
+    public void Back_con_otro_boton_no_abre_el_menu()
+    {
+        var d = DetectorCombos.DesdeConfig(new MandoConfig());
+        d.Procesar(Botones.Back | Botones.DPadDown, 0);
+        Assert.DoesNotContain(d.Procesar(Botones.Back | Botones.DPadDown, 3000), e => e is AlternarOverlay);
     }
 }

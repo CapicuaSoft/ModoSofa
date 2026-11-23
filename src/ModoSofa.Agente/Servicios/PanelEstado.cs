@@ -56,7 +56,7 @@ public sealed class PanelEstado(
         string? nombreAudio = null;
         try { nombreAudio = audio.NombreActual(); } catch { /* sin audio */ }
         Activo activo;
-        try { activo = lanzadores.Detectar(); } catch { activo = new Activo(TipoActivo.Ninguno, "", 0, IntPtr.Zero); }
+        try { activo = lanzadores.Delante(overlay.VentanaDelante); } catch { activo = new Activo(TipoActivo.Ninguno, "", 0, IntPtr.Zero); }
 
         return new Instantanea(
             modo.Modo == Modo.Sofa ? "sofa" : "trabajo",

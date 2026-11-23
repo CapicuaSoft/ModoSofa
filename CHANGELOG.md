@@ -24,10 +24,24 @@ Las notas largas de cada release (artefactos e instalación) están en
 
 ### Cambiado
 
+- **Mando:** el menú se abre **manteniendo `Back` 2 segundos** (`Back + Start` lo usa Steam) y ya
+  no hay atajos directos: todo está en el menú.
+- **El menú toma el foco** y lo devuelve al cerrarse: queda por encima de ES-DE y el juego no
+  recibe las pulsaciones mientras está abierto.
+- **«Cerrar juego» cierra lo que tienes delante:** RetroArch (vuelve a ES-DE), ES-DE (vuelve a
+  Steam) o un juego de Steam, este último con confirmación.
 - Cabecera de licencia LGPL-2.1 en todos los ficheros de código, y secciones de licencia y
   donaciones en el README.
 - El instalador, en una actualización silenciosa, no repite las tareas que piden administrador
   (firewall, RetroArch, inicio de sesión automático).
+
+### Corregido
+
+- El sonido no pasaba a la tele: su salida de audio aparece unos segundos después que la imagen.
+- Al volver al trabajo quedaba apagado el monitor que se quitó para enchufar la tele.
+- Con Steam abierto, el menú del mando se abría y se cerraba a la vez (Steam duplica el mando).
+- El guardián de foco apartaba ventanas mientras se volvía al modo trabajo.
+- El editor de configuración del móvil mostraba `[object Object]`.
 
 ### Nota
 
@@ -44,8 +58,8 @@ Primera versión. Sucede a [AlexaController](https://github.com/jbautistamartin/
   trabajo cerrados (y reabiertos al salir), el resto de ventanas minimizadas, sin suspensión y
   Steam en Big Picture. Al desenchufarla, todo vuelve a su sitio. Si el PC se cuelga a mitad, se
   deshace al arrancar.
-- **Mando:** `Back + Start` mantenido abre un menú en la tele que no quita el foco al juego;
-  `Back + Start + botón` son atajos (cerrar juego, enfocar, volumen).
+- **Mando:** `Back + Start` mantenido abre un menú en la tele; `Back + Start + botón` son atajos
+  (cerrar juego, enfocar, volumen).
 - **Guardián de foco:** aparta las ventanas de trabajo que se pongan delante del juego.
 - **RetroArch:** se cierra y se pausa por sus comandos de red, sin perder partidas.
 - **Móvil:** panel web instalable con estado y log en vivo, vinculado por QR; app Android con

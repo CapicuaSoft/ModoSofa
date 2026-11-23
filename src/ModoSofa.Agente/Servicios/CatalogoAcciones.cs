@@ -40,7 +40,11 @@ public static class CatalogoAcciones
         r.Registrar(new Accion("modo.sofa", "Activar modo sofá", "Modo", ct => modo.EntrarAsync(ct)));
         r.Registrar(new Accion("modo.trabajo", "Volver a trabajar", "Modo", ct => modo.SalirAsync(ct)));
 
-        r.Registrar(new Accion("juego.cerrar", "Cerrar juego", "Juego", _ => lanzadores.CerrarJuegoAsync()));
+        r.Registrar(new Accion("juego.cerrar", "Cerrar juego", "Juego",
+            _ => lanzadores.CerrarJuegoAsync(lanzadores.Delante(overlay.VentanaDelante), confirmado: false)));
+        // La versión confirmada: la piden el menú y el móvil tras preguntar si delante hay un juego de Steam.
+        r.Registrar(new Accion("juego.cerrar.confirmado", "Cerrar juego de Steam", "Juego",
+            _ => lanzadores.CerrarJuegoAsync(lanzadores.Delante(overlay.VentanaDelante), confirmado: true), Peligrosa: true));
         r.Registrar(new Accion("juego.enfocar", "Enfocar juego", "Juego", _ => Sincrono(lanzadores.EnfocarActivo)));
 
         r.Registrar(new Accion("volumen.subir", "Subir volumen", "Volumen",

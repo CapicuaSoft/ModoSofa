@@ -54,7 +54,7 @@
 
     const PRINCIPAL = [
       { texto: "Volver al juego", cerrar: true },
-      { texto: "Cerrar juego", id: "juego.cerrar", cerrar: true },
+      { texto: () => textoCerrar(), cerrarJuego: true },
       { texto: "Enfocar juego", id: "juego.enfocar", cerrar: true },
       { texto: "Volumen", volumen: true },
       { texto: "Silenciar", id: "volumen.silenciar" },
@@ -65,13 +65,24 @@
       { texto: "Equipo…", submenu: "equipo" },
     ];
     const EQUIPO = [
-      { texto: "Suspender", id: "equipo.suspender", peligro: true },
-      { texto: "Reiniciar", id: "equipo.reiniciar", peligro: true },
-      { texto: "Apagar", id: "equipo.apagar", peligro: true },
+      { texto: "Suspender", id: "equipo.suspender", peligro: true, pregunta: "¿<b>Suspender</b> el equipo?" },
+      { texto: "Reiniciar", id: "equipo.reiniciar", peligro: true, pregunta: "¿<b>Reiniciar</b> el equipo?" },
+      { texto: "Apagar", id: "equipo.apagar", peligro: true, pregunta: "¿<b>Apagar</b> el equipo?" },
       { texto: "Volver", atras: true },
     ];
 
     let menu = PRINCIPAL, sel = 0, confirmando = null;
+    const esc = t => String(t ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+
+    // «Cerrar juego» actúa sobre lo que había delante al abrir el menú.
+    function textoCerrar() {
+      switch (estado?.tipoActivo) {
+        case "RetroArch": return "Cerrar juego";
+        case "EsDe": return "Cerrar EmulationStation";
+        case "Juego": return `Cerrar ${estado.activo}…`;
+        default: return "Cerrar juego";
+      }
+    }
 
     function cerrar() { menu = PRINCIPAL; sel = 0; confirmando = null; pintar(); window.chrome?.webview?.postMessage("cerrar"); }
 
@@ -83,7 +94,7 @@
     function pintar() {
       const ul = $("menu");
       if (confirmando) {
-        ul.innerHTML = `<div class="confirmar">¿<b>${confirmando.texto}</b> el equipo?<br><br>Pulsa <kbd class="a">A</kbd> para confirmar o <kbd class="b">B</kbd> para cancelar.</div>`;
+        ul.innerHTML = `<div class="confirmar">${confirmando.pregunta}<br><br>Pulsa <kbd class="a">A</kbd> para confirmar o <kbd class="b">B</kbd> para cancelar.</div>`;
         return;
       }
       ul.replaceChildren(...menu.map((m, i) => {
@@ -91,7 +102,7 @@
         li.className = (i === sel ? "sel " : "") + (m.peligro ? "peligro" : "");
         const valor = m.volumen ? "◀  ▶" : m.valor ? m.valor() : m.submenu ? "▶" : "";
         li.innerHTML = `<span></span><span class="valor">${valor}</span>`;
-        li.firstChild.textContent = m.texto;
+        li.firstChild.textContent = typeof m.texto === "function" ? m.texto() : m.texto;
         li.onclick = () => { sel = i; aceptar(); };
         return li;
       }));
@@ -105,6 +116,15 @@
     function aceptar() {
       if (confirmando) { const id = confirmando.id; confirmando = null; lanzar(id); cerrar(); return; }
       const m = menu[sel];
+      if (m.cerrarJuego) {
+        if (estado?.tipoActivo === "Juego") {
+          confirmando = { id: "juego.cerrar.confirmado",
+            pregunta: `¿Cerrar <b>${esc(estado.activo)}</b>?<br><small>Se perderá lo que no hayas guardado en el juego.</small>` };
+          return pintar();
+        }
+        lanzar("juego.cerrar");
+        return cerrar();
+      }
       if (m.cerrar && !m.id) return cerrar();
       if (m.submenu) { menu = EQUIPO; sel = 0; return pintar(); }
       if (m.atras) { menu = PRINCIPAL; sel = PRINCIPAL.length - 1; return pintar(); }
@@ -141,7 +161,10 @@
     }
 
     window.chrome?.webview?.addEventListener("message", e => {
-      if (e.data === "abierto") { menu = PRINCIPAL; sel = 0; confirmando = null; pintar(); }
+      if (e.data === "abierto") {
+        menu = PRINCIPAL; sel = 0; confirmando = null; pintar();
+        ModoSofa.api("/estado").then(pintarEstado).catch(() => {}); // qué hay delante, al momento
+      }
       else if (typeof e.data === "string" && e.data.startsWith("boton:")) boton(e.data.slice(6));
     });
     // Para probar con teclado fuera de la tele.

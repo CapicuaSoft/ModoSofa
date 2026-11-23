@@ -93,14 +93,17 @@ public sealed class ModoServicio(
 
         if (!string.IsNullOrWhiteSpace(config.Audio.DispositivoSofa))
         {
-            await PasoAsync("Audio", () =>
+            await PasoAsync("Audio", async () =>
             {
                 e.AudioAnterior = audio.SalidaActual();
                 e.VolumenAnterior = audio.Volumen();
                 almacen.Guardar();
-                if (audio.CambiarA(config.Audio.DispositivoSofa) && config.Audio.VolumenInicialSofa >= 0)
+                // Windows crea la salida de audio HDMI de la tele unos segundos después de la imagen
+                // (comprobado con la LG: no existía 2 s después de detectar la pantalla).
+                var fragmento = config.Audio.DispositivoSofa;
+                for (var i = 0; i < 20 && !audio.Existe(fragmento); i++) await Task.Delay(1000, ct);
+                if (audio.CambiarA(fragmento) && config.Audio.VolumenInicialSofa >= 0)
                     audio.FijarVolumen(config.Audio.VolumenInicialSofa / 100f);
-                return Task.CompletedTask;
             });
         }
 
@@ -162,6 +165,8 @@ public sealed class ModoServicio(
 
         log.LogInformation("Volviendo al modo trabajo…");
         var reloj = Stopwatch.StartNew();
+        // El guardián no debe apartar ventanas mientras se restauran.
+        GuardianActivo = false;
         energia.PermitirSuspension();
 
         if (config.Lanzadores.CerrarSteamAlSalir)

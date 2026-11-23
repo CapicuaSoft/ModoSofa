@@ -16,6 +16,18 @@ invitar a un café.
 - **«Acerca de»** en el menú de la bandeja, en *Ajustes* del móvil y en la app: versión,
   actualizaciones, proyecto, licencia (LGPL-2.1) e **«Invitar a un café»**.
 
+## Cambios tras las pruebas con la tele
+
+- El menú se abre **manteniendo `Back` 2 segundos** y toma el foco: queda encima de ES-DE y el
+  juego no recibe las pulsaciones. Ya no hay atajos directos.
+- **«Cerrar juego»** cierra lo que tienes delante: RetroArch, ES-DE o un juego de Steam (este,
+  con confirmación).
+- Corregido: el sonido no pasaba a la tele, al volver al trabajo quedaba apagado un monitor y, con
+  Steam abierto, el menú se abría y se cerraba a la vez.
+- **Si actualizas desde la 0.1.0** con un `config.json` ya creado, el mando sigue con
+  `Back + Start`: en la sección `Mando` pon `"ComboOverlay": "Back"`, `"MantenerMs": 2000` y
+  `"Atajos": {}` (o borra la sección para usar los valores nuevos).
+
 ## Descargas
 
 | Archivo | Qué es | Dónde va |

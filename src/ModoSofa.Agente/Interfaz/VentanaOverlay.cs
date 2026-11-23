@@ -23,9 +23,12 @@ using ModoSofa.Nucleo;
 namespace ModoSofa.Agente.Interfaz;
 
 /// <summary>
-/// Menú en la tele. Ventana sin bordes, siempre encima, que <b>no roba el foco</b>
-/// (WS_EX_NOACTIVATE): el juego sigue siendo la ventana activa. El mando no llega por teclado
-/// sino como mensajes que el agente envía a la página.
+/// Menú en la tele. Ventana sin bordes y siempre encima que <b>toma el foco</b> al abrirse y se lo
+/// devuelve a la ventana anterior al cerrarse. Con el foco, el menú queda por encima de ES-DE (que
+/// también es «siempre encima») y el juego deja de atender al mando: ES-DE, RetroArch y la mayoría
+/// de juegos ignoran el mando cuando no son la ventana activa. Con WS_EX_NOACTIVATE, la primera
+/// versión, el juego seguía recibiendo las pulsaciones y ES-DE tapaba el menú.
+/// El mando llega a la página como mensajes que envía el agente (también funcionan las flechas).
 /// </summary>
 internal sealed class VentanaOverlay : Form
 {
@@ -34,6 +37,10 @@ internal sealed class VentanaOverlay : Form
     private readonly string _datos;
     private readonly Action _alCerrar;
     private bool _iniciado;
+    private IntPtr _anterior;
+
+    /// <summary>La ventana que tenía el foco al abrir el menú (el juego, ES-DE, Steam…).</summary>
+    public IntPtr Anterior => _anterior;
 
     public VentanaOverlay(int puerto, string token, string carpetaDatos, Action alCerrar)
     {
@@ -52,16 +59,23 @@ internal sealed class VentanaOverlay : Form
         Controls.Add(_web);
     }
 
-    protected override bool ShowWithoutActivation => true;
-
     protected override CreateParams CreateParams
     {
         get
         {
             var cp = base.CreateParams;
-            cp.ExStyle |= Nativo.WS_EX_NOACTIVATE | Nativo.WS_EX_TOOLWINDOW | Nativo.WS_EX_TOPMOST;
+            // Fuera del Alt+Tab y de la barra de tareas, siempre encima.
+            cp.ExStyle |= Nativo.WS_EX_TOOLWINDOW | Nativo.WS_EX_TOPMOST;
             return cp;
         }
+    }
+
+    /// <summary>Oculta el menú y devuelve el foco a lo que lo tenía (el juego, ES-DE, Steam…).</summary>
+    public void Ocultar()
+    {
+        Hide();
+        if (_anterior != IntPtr.Zero && Nativo.IsWindow(_anterior)) Nativo.TraerAlFrente(_anterior);
+        _anterior = IntPtr.Zero;
     }
 
     public async void Mostrar()
@@ -71,9 +85,11 @@ internal sealed class VentanaOverlay : Form
         var ancho = (int)(area.Width * 0.62);
         var alto = (int)(area.Height * 0.78);
         Bounds = new Rectangle(area.X + (area.Width - ancho) / 2, area.Y + (area.Height - alto) / 2, ancho, alto);
+        var delante = Nativo.GetForegroundWindow();
+        if (delante != Handle) _anterior = delante;
         Show();
-        Nativo.SetWindowPos(Handle, Nativo.HWND_TOPMOST, 0, 0, 0, 0,
-            Nativo.SWP_NOMOVE | Nativo.SWP_NOSIZE | Nativo.SWP_NOACTIVATE | Nativo.SWP_SHOWWINDOW);
+        Nativo.TraerAlFrente(Handle, dejarEncima: true);
+        _web.Focus();
 
         if (!_iniciado)
         {

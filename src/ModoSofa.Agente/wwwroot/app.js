@@ -59,7 +59,11 @@
   }
 
   async function ejecutar(a) {
-    if (a.peligrosa && !(await confirmar(`¿${a.nombre} el equipo?`))) return;
+    if (a.id === "juego.cerrar" && estado?.tipoActivo === "Juego") {
+      // Un juego de Steam no guarda al cerrarlo a la fuerza.
+      if (!(await confirmar(`¿Cerrar «${estado.activo}»? Se perderá lo que no hayas guardado.`))) return;
+      a = { id: "juego.cerrar.confirmado" };
+    } else if (a.peligrosa && !(await confirmar(`¿${a.nombre} el equipo?`))) return;
     try {
       await ModoSofa.accion(a.id);
       if (navigator.vibrate) navigator.vibrate(25);
@@ -107,7 +111,7 @@
     const acciones = await ModoSofa.api("/acciones");
     const grupos = new Map();
     for (const a of acciones) {
-      if (a.id.startsWith("modo.") || a.id.startsWith("app.")) continue; // botón principal y «Acerca de»
+      if (a.id.startsWith("modo.") || a.id.startsWith("app.") || a.id.endsWith(".confirmado")) continue; // botón principal, «Acerca de» y confirmaciones
       if (!grupos.has(a.grupo)) grupos.set(a.grupo, []);
       grupos.get(a.grupo).push(a);
     }

@@ -46,6 +46,9 @@ public sealed class Audio(ILogger<Audio> log)
 
     public string? SalidaActual() => IdPorDefecto(Enumerador());
 
+    public bool Existe(string fragmento) =>
+        Salidas().Any(d => d.Nombre.Contains(fragmento, StringComparison.OrdinalIgnoreCase));
+
     public string? NombreActual()
     {
         var id = SalidaActual();

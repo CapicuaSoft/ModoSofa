@@ -153,8 +153,7 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
         var juego = lista
             .Where(v => !NoJuego.Contains(v.Proceso) && !extra.Contains(v.Proceso))
             .Select(v => (v, ruta: Nativo.RutaProceso(v.ProcesoId)))
-            .Where(x => x.ruta is not null && config.Lanzadores.PatronesRutaJuegos
-                .Any(p => x.ruta.Contains(p, StringComparison.OrdinalIgnoreCase)))
+            .Where(x => EsJuego(x.v.Proceso, x.ruta))
             .OrderByDescending(x => Inicio(x.v.ProcesoId))
             .Select(x => x.v)
             .FirstOrDefault();
@@ -172,6 +171,12 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
             : new Activo(TipoActivo.Ninguno, "", 0, IntPtr.Zero);
     }
 
+    private bool EsJuego(string proceso, string? ruta) =>
+        ruta is not null
+        && !NoJuego.Contains(proceso)
+        && !config.Lanzadores.ProcesosNoJuego.Contains(proceso, StringComparer.OrdinalIgnoreCase)
+        && config.Lanzadores.PatronesRutaJuegos.Any(p => ruta.Contains(p, StringComparison.OrdinalIgnoreCase));
+
     public void EnfocarActivo()
     {
         var activo = Detectar();
@@ -188,28 +193,65 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
     /// Cierra lo que haya en primer plano del juego, de forma escalonada (comando de red o WM_CLOSE,
     /// luego terminar el proceso) y devuelve el foco a ES-DE o a Steam.
     /// </summary>
-    public async Task CerrarJuegoAsync()
+    /// <summary>
+    /// Clasifica la ventana que el usuario tiene delante (la que tenía el foco antes de abrir el
+    /// menú, o la activa si la orden llega del móvil o de Alexa). Si no es ninguna de las
+    /// conocidas —el panel, el propio menú, una ventana de trabajo—, se cae a <see cref="Detectar"/>.
+    /// </summary>
+    public Activo Delante(IntPtr ventana)
     {
-        var activo = Detectar();
-        switch (activo.Tipo)
+        if (ventana != IntPtr.Zero && Nativo.IsWindow(ventana))
         {
-            case TipoActivo.Juego:
-                log.LogInformation("Cerrando el juego: {Nombre}.", activo.Nombre);
-                await CerrarProcesoAsync(activo.ProcesoId, activo.Hwnd, TimeSpan.FromSeconds(5));
-                break;
+            var raiz = Nativo.GetAncestor(ventana, Nativo.GA_ROOTOWNER);
+            if (raiz != IntPtr.Zero) ventana = raiz;
+            var pid = Nativo.ProcesoDeVentana(ventana);
+            var proceso = Ventanas.NombreProceso(pid);
+            var titulo = Nativo.TextoVentana(ventana);
+
+            if (proceso.Equals(RetroArch.NombreProceso, StringComparison.OrdinalIgnoreCase))
+                return new Activo(TipoActivo.RetroArch, titulo, pid, ventana);
+            if (proceso.Equals(EsDe, StringComparison.OrdinalIgnoreCase))
+                return new Activo(TipoActivo.EsDe, "ES-DE", pid, ventana);
+            if (proceso is "steam" or "steamwebhelper")
+                return new Activo(TipoActivo.Steam, "Steam", pid, ventana);
+            if (EsJuego(proceso, Nativo.RutaProceso(pid)))
+                return new Activo(TipoActivo.Juego, titulo, pid, ventana);
+        }
+        return Detectar();
+    }
+
+    /// <summary>
+    /// Cierra lo que hay delante y devuelve el foco al nivel anterior:
+    /// RetroArch → ES-DE (o Steam); ES-DE → Steam; juego de Steam → Steam.
+    /// Un juego de Steam no guarda al cerrarlo a la fuerza: exige <paramref name="confirmado"/>.
+    /// </summary>
+    public async Task CerrarJuegoAsync(Activo objetivo, bool confirmado)
+    {
+        switch (objetivo.Tipo)
+        {
             case TipoActivo.RetroArch:
-                log.LogInformation("Cerrando RetroArch: {Nombre}.", activo.Nombre);
+                log.LogInformation("Cerrando RetroArch: {Nombre}.", objetivo.Nombre);
                 if (!await retroArch.SalirAsync(TimeSpan.FromSeconds(5)))
-                    await CerrarProcesoAsync(activo.ProcesoId, activo.Hwnd, TimeSpan.FromSeconds(4));
+                    await CerrarProcesoAsync(objetivo.ProcesoId, objetivo.Hwnd, TimeSpan.FromSeconds(4));
+                break;
+            case TipoActivo.EsDe:
+                log.LogInformation("Cerrando ES-DE.");
+                await CerrarProcesoAsync(objetivo.ProcesoId, objetivo.Hwnd, TimeSpan.FromSeconds(5));
+                break;
+            case TipoActivo.Juego when !confirmado:
+                throw new InvalidOperationException($"Cerrar «{objetivo.Nombre}» puede perder lo no guardado: hay que confirmarlo.");
+            case TipoActivo.Juego:
+                log.LogInformation("Cerrando el juego: {Nombre}.", objetivo.Nombre);
+                await CerrarProcesoAsync(objetivo.ProcesoId, objetivo.Hwnd, TimeSpan.FromSeconds(5));
                 break;
             default:
-                log.LogInformation("No hay ningún juego en marcha.");
-                break;
+                log.LogInformation("No hay ningún juego delante que cerrar.");
+                return;
         }
 
         await Task.Delay(500);
         var esde = Process.GetProcessesByName(EsDe).FirstOrDefault();
-        var destino = esde is not null ? ventanas.VentanaDe(esde.Id) : VentanaSteam();
+        var destino = esde is not null && objetivo.Tipo == TipoActivo.RetroArch ? ventanas.VentanaDe(esde.Id) : VentanaSteam();
         ventanas.Enfocar(destino);
     }
 

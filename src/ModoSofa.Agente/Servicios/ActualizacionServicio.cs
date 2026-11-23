@@ -89,7 +89,12 @@ public sealed class ActualizacionServicio(
     /// <summary>Pregunta a GitHub. Con <paramref name="forzar"/> salta el intervalo y el ETag («Buscar ahora»).</summary>
     public async Task BuscarAsync(bool forzar, CancellationToken ct = default)
     {
-        if (!forzar && DateTimeOffset.UtcNow - _estado.UltimaComprobacion < Intervalo) return;
+        if (!forzar && DateTimeOffset.UtcNow - _estado.UltimaComprobacion < Intervalo)
+        {
+            // Hoy ya se preguntó: lo que se supo entonces sigue valiendo.
+            if (_estado.UltimaComprobacion != default) FijarResultado();
+            return;
+        }
         Fijar("Buscando versiones nuevas…");
         try
         {

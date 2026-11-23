@@ -26,7 +26,7 @@ AlexaController resolvía parte del problema, pero:
 | Ventanas de trabajo | Se minimizan todas (y se restauran); se cierran solo las de una lista |
 | Salida | Restaura pantallas, audio, energía y ventanas; relanza lo cerrado; **cierra Steam** |
 | Privilegios | Ninguno: el agente corre como usuario normal |
-| Mando | Combinaciones con Back+Start (no chocan con Steam ni con los atajos de RetroArch) |
+| Mando | `Back` mantenido 2 s abre el menú; sin atajos directos (`Back+Start` lo usa Steam) |
 | Móvil | PWA servida por el propio agente + APK envoltorio con Wake-on-LAN |
 | Alexa | Imprescindible, fase 3: Lambda genérica + Tailscale Funnel (sin ngrok) |
 | Acceso remoto | Tailscale (sin Home Assistant: no hay otro equipo) |
@@ -63,7 +63,7 @@ Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pe
 
 ### Fase 2 — Mando y tele
 - 🟡 Lectura XInput en segundo plano (no necesita foco)
-- 🟡 Back+Start mantenido → overlay; Back+Start+botón → atajos configurables
+- ✅ Back mantenido 2 s → menú en la tele; atajos directos configurables (vacíos por defecto)
 - 🟡 Overlay en la tele (WebView2, no roba el foco) navegable con el mando
 - 🟡 Pausa automática de RetroArch mientras el overlay está abierto
 - 🟡 Guardián de foco: si una app de trabajo se pone delante, se minimiza y vuelve el juego
@@ -154,6 +154,30 @@ pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de
   confirmado). Hasta entonces no se puede probar la cadena completa contra GitHub
   (descarga + verificación + instalación automática).
 
+### Pruebas finales con la tele (22/11/2026, 20:00–20:45, con el usuario delante)
+
+Superadas: entrada automática al enchufar la tele LG («LG TV [GSM]»), pantalla única, audio por
+la tele, Teams cerrado y ventanas minimizadas, Big Picture, menú con el mando encima de Steam y de
+ES-DE sin que el juego reciba las pulsaciones, menú de RetroArch con Start mantenido, «Cerrar
+juego» en RetroArch, ES-DE y un juego de Steam (con confirmación), vuelta al trabajo con los dos
+monitores, audio, ventanas y Teams restaurados, y el móvil por Wi-Fi (estado y log en vivo).
+
+Arreglado durante las pruebas:
+- El audio HDMI de la tele aparece unos segundos después de la imagen: ahora se espera.
+- `Back+Start` lo usa Steam (menú y teclado en pantalla) → `Back` mantenido 2 s, sin atajos.
+- Steam Input duplica el mando y el menú se abría y cerraba a la vez → un detector sobre la unión.
+- El menú no tomaba el foco: ES-DE lo tapaba y el juego seguía recibiendo botones → toma el foco.
+- «Cerrar juego» ahora cierra lo que hay delante (ES-DE incluido); juegos de Steam con confirmación.
+- La vuelta restauraba «monitor + tele» y dejaba apagado el segundo monitor → se extiende si
+  cambiaron las pantallas conectadas.
+- El guardián actuaba durante la vuelta al trabajo → se pausa al empezar.
+- RetroArch: menú con Start mantenido 2 s y sin combinación de salida (copia
+  `retroarch.cfg.antes-combos-20261122-2034.bak`).
+
+Pendiente: la red de casa está marcada como **pública** (Windows creó reglas «Permitir» para
+redes públicas); conviene marcarla como privada. App Android, tele LG por red, Tailscale y Alexa
+sin probar.
+
 ## Pendiente de hacer en el equipo real
 1. Responder a los avisos del firewall: **Permitir** ModoSofá en redes privadas (o
    `tools/permitir-firewall.ps1`) y **Cancelar** el de RetroArch.
@@ -161,7 +185,7 @@ pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de
    `Tele.NombrePantalla` y `Audio.DispositivoSofa`.
 3. Ajustar `Ventanas.CerrarProcesos` con los programas de trabajo reales.
 4. Probar el ciclo completo enchufando la tele, y los atajos con el mando físico (comprobar que
-   Steam Input no se queda con Back+Start).
+   Steam Input no interfiere).
 5. Instalar `dist/modosofa.apk` en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
 6. Emparejar la tele LG (aceptar el aviso en pantalla la primera vez).
 7. Tailscale, Lambda y skill de Alexa según `docs/INSTALACION.md`.

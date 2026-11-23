@@ -125,10 +125,10 @@ public sealed class MandoServicio(
     {
         if (!config.Mando.Activado) return Task.CompletedTask;
 
-        DetectorCombos[] detectores;
+        DetectorCombos detector;
         try
         {
-            detectores = Enumerable.Range(0, XInput.MaxMandos).Select(_ => DetectorCombos.DesdeConfig(config.Mando)).ToArray();
+            detector = DetectorCombos.DesdeConfig(config.Mando);
         }
         catch (FormatException ex)
         {
@@ -136,13 +136,20 @@ public sealed class MandoServicio(
             return Task.CompletedTask;
         }
 
-        var hilo = new Thread(() => Bucle(detectores, ct)) { IsBackground = true, Name = "ModoSofa.Mando" };
+        var hilo = new Thread(() => Bucle(detector, ct)) { IsBackground = true, Name = "ModoSofa.Mando" };
         hilo.Start();
-        log.LogInformation("Mando: {Overlay} mantenido abre el menú; {Atajos} atajos.", config.Mando.ComboOverlay, config.Mando.Atajos.Count);
+        log.LogInformation("Mando: {Overlay} mantenido {Segundos:0.#} s abre el menú; {Atajos} atajos.",
+            config.Mando.ComboOverlay, config.Mando.MantenerMs / 1000.0, config.Mando.Atajos.Count);
         return Task.CompletedTask;
     }
 
-    private void Bucle(DetectorCombos[] detectores, CancellationToken ct)
+    /// <summary>
+    /// Un único detector para todas las ranuras, sobre la unión de sus botones. Steam Input crea un
+    /// mando virtual que repite los botones del físico: con un detector por ranura, mantener Back
+    /// disparaba dos veces a la vez (el menú se abría y se cerraba en el mismo instante) y cada
+    /// pulsación movía dos posiciones en el menú. Comprobado con el F710 y Steam Big Picture.
+    /// </summary>
+    private void Bucle(DetectorCombos detector, CancellationToken ct)
     {
         var conectado = new bool[XInput.MaxMandos];
         var proximaComprobacion = new long[XInput.MaxMandos];
@@ -150,6 +157,7 @@ public sealed class MandoServicio(
         while (!ct.IsCancellationRequested)
         {
             var ahora = Environment.TickCount64;
+            var union = Botones.Ninguno;
             for (var i = 0; i < XInput.MaxMandos; i++)
             {
                 // Consultar una ranura vacía es caro en XInput: se mira solo una vez por segundo.
@@ -164,31 +172,33 @@ public sealed class MandoServicio(
                 }
                 if (!conectado[i]) log.LogInformation("Mando {Indice} conectado.", i + 1);
                 conectado[i] = true;
-
-                foreach (var evento in detectores[i].Procesar(botones.Value, ahora))
-                {
-                    try
-                    {
-                        switch (evento)
-                        {
-                            case AlternarOverlay:
-                                overlay.Alternar();
-                                break;
-                            case Atajo a:
-                                registro.Lanzar(a.AccionId, "mando");
-                                break;
-                            case Pulsado p when overlay.Visible:
-                                overlay.Boton(p.Boton);
-                                break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.LogWarning(ex, "Error atendiendo al mando.");
-                    }
-                }
+                union |= botones.Value;
             }
             Conectados = conectado.Count(c => c);
+
+            foreach (var evento in detector.Procesar(union, ahora))
+            {
+                try
+                {
+                    switch (evento)
+                    {
+                        case AlternarOverlay:
+                            log.LogInformation("Mando: {Accion} el menú en la tele.", overlay.Visible ? "cerrando" : "abriendo");
+                            overlay.Alternar();
+                            break;
+                        case Atajo a:
+                            registro.Lanzar(a.AccionId, "mando");
+                            break;
+                        case Pulsado p when overlay.Visible:
+                            overlay.Boton(p.Boton);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.LogWarning(ex, "Error atendiendo al mando.");
+                }
+            }
             Thread.Sleep(16);
         }
     }

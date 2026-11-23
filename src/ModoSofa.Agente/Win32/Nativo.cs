@@ -90,6 +90,22 @@ internal static partial class Nativo
         public RECT rcNormalPosition;
     }
 
+    /// <summary>
+    /// Pone una ventana delante con el foco. Windows solo deja robar el foco al proceso que tuvo la
+    /// última entrada: pulsar y soltar Alt levanta esa restricción. El TOPMOST/NOTOPMOST la sube
+    /// por encima de otras ventanas «siempre encima» sin dejarla fijada ahí.
+    /// </summary>
+    public static void TraerAlFrente(IntPtr hwnd, bool dejarEncima = false)
+    {
+        if (IsIconic(hwnd)) ShowWindow(hwnd, SW_RESTORE);
+        keybd_event(VK_MENU, 0, 0, UIntPtr.Zero);
+        keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        if (!dejarEncima) SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        BringWindowToTop(hwnd);
+        SetForegroundWindow(hwnd);
+    }
+
     public static string TextoVentana(IntPtr hwnd)
     {
         var largo = GetWindowTextLength(hwnd);

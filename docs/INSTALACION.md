@@ -126,6 +126,11 @@ Apagar, reiniciar y suspender piden confirmación («¿Seguro…?» → «sí»)
 
 ## 7. RetroArch
 
+**Combinaciones recomendadas** (en RetroArch: *Ajustes → Entrada → Teclas rápidas*):
+*Combinación para mostrar el menú* = **Mantener Start (2 segundos)** y *Combinación para salir* =
+**Ninguna**. Las de serie usan Select (= Back), que es el botón del menú de ModoSofá; para salir
+de un juego se usa «Cerrar juego» de ModoSofá, que guarda la partida.
+
 ModoSofá cierra y pausa RetroArch con sus comandos de red, para que se guarden la SRAM y el
 estado automático. Ya está activado en
 `C:\Games\EmulationStation\Emulators\RetroArch-Win64\retroarch.cfg`

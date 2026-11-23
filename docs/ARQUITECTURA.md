@@ -46,6 +46,10 @@
 7. Steam Big Picture (o ES-DE), esperando a su ventana para darle el foco.
 
 Salir hace lo contrario, en orden inverso, y además cierra ES-DE y Steam (`steam -shutdown`).
+La topología guardada solo se restaura si siguen conectadas las mismas pantallas; si se desenchufó
+la tele y se volvió a enchufar el monitor que se quitó para ella, se pide a Windows la topología
+extendida, que recuerda la disposición de esos monitores. El audio de la tele aparece unos segundos
+después que su imagen: el paso de audio espera hasta 20 s a que exista.
 
 ## Detección de la tele
 
@@ -62,16 +66,23 @@ inactivo), así que no hay bucles. Desenchufar el cable sí, y eso es lo que dis
 `MandoServicio` lee las cuatro ranuras XInput a ~60 Hz en un hilo propio (las vacías, una vez por
 segundo: consultar una ranura vacía es caro). `DetectorCombos` convierte las lecturas en eventos:
 
-- Las combinaciones deben ser **exactas**, y tras disparar una no se dispara nada hasta soltar
-  todo. Así `Back+Start+B` no abre además el overlay al soltar la B.
+- Un único detector sobre la **unión** de los botones de todas las ranuras: Steam Input crea un
+  mando virtual que repite los del físico, y con un detector por ranura el menú se abría y se
+  cerraba en el mismo instante.
+- Las combinaciones deben ser **exactas** (Back + Abajo no abre el menú), y tras disparar una no
+  se dispara nada hasta soltar todo.
 - Las pulsaciones nuevas se reenvían al overlay cuando está abierto.
 
 ## Overlay
 
-Ventana WinForms con WebView2, `WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | TOPMOST`: aparece encima
-del juego **sin quitarle el foco** (el juego no se minimiza ni pierde la entrada de teclado). El
-mando no llega por teclado sino como `PostWebMessageAsString("boton:A")`. Al abrirlo se pausa
-RetroArch (si estaba jugando) y al cerrarlo se reanuda.
+Ventana WinForms con WebView2, `WS_EX_TOOLWINDOW | TOPMOST`, que **toma el foco** al abrirse y
+se lo devuelve a la ventana anterior al cerrarse. Así queda por encima de ES-DE (que también es
+«siempre encima») y el juego deja de atender al mando, porque ES-DE, RetroArch y la mayoría de
+juegos ignoran el mando sin foco. La primera versión no tomaba el foco (`WS_EX_NOACTIVATE`) y en
+las pruebas el juego seguía recibiendo las pulsaciones y ES-DE tapaba el menú. El mando llega a la
+página como `PostWebMessageAsString("boton:A")`. Al abrirlo se pausa RetroArch (si estaba jugando)
+y al cerrarlo se reanuda. «Cerrar juego» actúa sobre la ventana que tenía el foco antes del menú
+(`IOverlay.VentanaDelante`).
 
 Limitación: los juegos en pantalla completa **exclusiva** no dejan dibujar encima. RetroArch y la
 mayoría de juegos modernos usan ventana sin bordes, que sí lo permite.

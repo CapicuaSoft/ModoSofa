@@ -27,6 +27,10 @@ namespace ModoSofa.Agente.Interfaz;
 public interface IOverlay
 {
     bool Visible { get; }
+
+    /// <summary>Lo que el usuario tiene delante: la ventana anterior al menú si está abierto, o la activa.</summary>
+    IntPtr VentanaDelante { get; }
+
     void Alternar();
     void Boton(Botones boton);
 }
@@ -55,6 +59,8 @@ public sealed class Bandeja(
     private bool _pausamosRetroArch;
 
     public bool Visible => _overlay?.Visible ?? false;
+
+    public IntPtr VentanaDelante => Visible && _overlay!.Anterior != IntPtr.Zero ? _overlay.Anterior : Win32.Nativo.GetForegroundWindow();
 
     public Task StartAsync(CancellationToken ct)
     {
@@ -114,7 +120,7 @@ public sealed class Bandeja(
 
     private void Ocultar()
     {
-        _overlay!.Hide();
+        _overlay!.Ocultar();
         if (_pausamosRetroArch)
         {
             _pausamosRetroArch = false;

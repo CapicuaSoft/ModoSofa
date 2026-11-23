@@ -75,6 +75,19 @@ public sealed class Pantallas(ILogger<Pantallas> log)
                 var partes = guardada.Split(':');
                 var rutas = MemoryMarshal.Cast<byte, DISPLAYCONFIG_PATH_INFO>(Convert.FromBase64String(partes[2])).ToArray();
                 var modos = MemoryMarshal.Cast<byte, DISPLAYCONFIG_MODE_INFO>(Convert.FromBase64String(partes[3])).ToArray();
+
+                // Lo guardado al entrar solo vale si siguen conectadas exactamente las mismas pantallas.
+                // Si se desenchufa la tele y se vuelve a enchufar el monitor que se quitó para ella,
+                // lo guardado (monitor + tele) no incluye ese monitor y quedaría apagado: entonces se
+                // extiende, y Windows aplica la disposición que recuerda para esos monitores.
+                var guardadas = rutas.Select(Clave).ToHashSet();
+                var conectadas = Consultar(QDC_ALL_PATHS).Item1.Where(x => x.targetInfo.targetAvailable != 0).Select(Clave).ToHashSet();
+                if (!guardadas.SetEquals(conectadas))
+                {
+                    log.LogInformation("Las pantallas conectadas ya no son las de antes; se extiende el escritorio.");
+                    goto Extender;
+                }
+
                 var r = SetDisplayConfig((uint)rutas.Length, rutas, (uint)modos.Length, modos,
                     SDC_APPLY | SDC_USE_SUPPLIED_DISPLAY_CONFIG | SDC_ALLOW_CHANGES | SDC_SAVE_TO_DATABASE);
                 if (r == 0)
@@ -90,6 +103,7 @@ public sealed class Pantallas(ILogger<Pantallas> log)
             }
         }
 
+    Extender:
         var e = SetDisplayConfig(0, null, 0, null, SDC_APPLY | SDC_TOPOLOGY_EXTEND);
         if (e != 0) log.LogWarning("No se pudo extender el escritorio (código {Codigo}).", e);
         else log.LogInformation("Escritorio extendido a todas las pantallas conectadas.");
@@ -154,6 +168,9 @@ public sealed class Pantallas(ILogger<Pantallas> log)
 
     private bool Coincide(DISPLAYCONFIG_PATH_INFO r, string fragmento) =>
         NombreDestino(r.targetInfo).Contains(fragmento, StringComparison.OrdinalIgnoreCase);
+
+    private static (uint, int, uint) Clave(DISPLAYCONFIG_PATH_INFO r) =>
+        (r.targetInfo.adapterId.LowPart, r.targetInfo.adapterId.HighPart, r.targetInfo.id);
 
     private static string Conector(DISPLAYCONFIG_PATH_INFO r) =>
         $"{r.targetInfo.adapterId.LowPart:X}-{r.targetInfo.id}";
