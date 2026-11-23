@@ -69,8 +69,9 @@ Move-Item (Join-Path $dist "modelo-alexa-es-ES.json") (Join-Path $dist "modelo-a
 $artefactos += Join-Path $dist "modelo-alexa-es-ES-$version.json"
 
 $sumas = Join-Path $dist "SHA256SUMS.txt"
-$artefactos | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_ -Algorithm SHA256).Hash.ToLower(), (Split-Path $_ -Leaf) } |
-    Set-Content $sumas -Encoding ascii
+# Finales de línea LF: con CRLF, «sha256sum -c» no encuentra los ficheros.
+$lineas = $artefactos | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_ -Algorithm SHA256).Hash.ToLower(), (Split-Path $_ -Leaf) }
+[IO.File]::WriteAllText($sumas, ($lineas -join "`n") + "`n", [Text.Encoding]::ASCII)
 $artefactos += $sumas
 $artefactos | Get-Item | Format-Table Name, @{n = "MB"; e = { [math]::Round($_.Length / 1MB, 1) } }
 

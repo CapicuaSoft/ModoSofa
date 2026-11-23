@@ -130,6 +130,16 @@ pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de
   con Windows y configuración por defecto (entra solo al detectar «LG TV»).
 - AlexaController **sigue activo** a propósito: es la única vía de voz hasta probar el skill nuevo.
 
+### Releases (22/11/2026, noche)
+
+- Repositorio público: https://github.com/jbautistamartin/ModoSofa (historial revisado: sin la MAC
+  ni los tokens del PC).
+- Instalador de Inno Setup sin elevación (`installer/`), probado en este PC: instalación
+  silenciosa, desinstalación (conserva la configuración) y reinstalación con el mismo token.
+- `release.ps1` publica el release; **v0.1.0 publicado** con instalador, zip portable, APK firmado,
+  Lambda, modelo de Alexa y SHA256SUMS.
+- Aviso de versión nueva (bandeja y móvil) contra la API de releases de GitHub.
+
 ## Pendiente de hacer en el equipo real
 1. Responder a los avisos del firewall: **Permitir** ModoSofá en redes privadas (o
    `tools/permitir-firewall.ps1`) y **Cancelar** el de RetroArch.
