@@ -97,6 +97,8 @@ s.AddSingleton<Energia>();
 s.AddSingleton<RetroArch>();
 s.AddSingleton<Lanzadores>();
 s.AddSingleton<Procesos>();
+s.AddSingleton<TeleWebOs>();
+s.AddSingleton<TeleNetCast>();
 s.AddSingleton<TeleLg>();
 s.AddSingleton<ModoServicio>();
 

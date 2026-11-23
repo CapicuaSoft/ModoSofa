@@ -146,6 +146,26 @@ public static class Endpoints
             };
         });
 
+        // Tele LG: estado y vinculación (NetCast pide un código que la tele muestra en pantalla).
+        api.MapGet("/tele", async (TeleLg tele, Configuracion config) =>
+        {
+            if (!tele.Configurada) return Results.Ok(new { configurada = false, ip = config.Tele.LgIp });
+            var netCast = await tele.EsNetCastAsync();
+            var modelo = netCast ? await tele.NetCast.ModeloAsync() : null;
+            return Results.Ok(new { configurada = true, ip = config.Tele.LgIp, tipo = netCast ? "NetCast" : "webOS", modelo,
+                vinculada = netCast ? tele.NetCast.Vinculada : (bool?)null, encendida = !netCast || modelo is not null });
+        });
+        api.MapPost("/tele/codigo", async (TeleLg tele) =>
+        {
+            try { await tele.NetCast.MostrarCodigoAsync(); return Results.NoContent(); }
+            catch (Exception ex) { return Results.BadRequest(new { error = ex.Message }); }
+        });
+        api.MapPost("/tele/vincular", async (TeleLg tele, CodigoTele datos) =>
+        {
+            try { await tele.NetCast.VincularAsync(datos.Codigo); return Results.NoContent(); }
+            catch (Exception ex) { return Results.BadRequest(new { error = ex.Message }); }
+        });
+
         api.MapPost("/alexa", (PeticionAlexa peticion, Configuracion config, RegistroAcciones r, ILoggerFactory lf) =>
         {
             if (!config.Alexa.Activada) return Results.NotFound();
@@ -184,3 +204,5 @@ public static class Endpoints
         _ = Task.Delay(300).ContinueWith(_ => vida.StopApplication());
     }
 }
+
+public sealed record CodigoTele(string Codigo);

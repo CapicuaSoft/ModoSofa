@@ -89,11 +89,22 @@ public sealed class TeleConfig
     /// <summary>Tiempo que el cambio debe mantenerse antes de reaccionar (anti-rebote del HDMI).</summary>
     public int EsperaDeteccionMs { get; set; } = 4000;
 
+    /// <summary>
+    /// Segundos que se espera a que la tele acepte la imagen del PC (se enchufa el cable y después
+    /// se enciende la tele y se busca su entrada HDMI).
+    /// </summary>
+    public int EsperaImagenS { get; set; } = 90;
+
     /// <summary>Controlar la tele LG webOS por red (fase 4).</summary>
     public bool ControlarLg { get; set; } = false;
     public string LgIp { get; set; } = "";
     /// <summary>MAC de la tele para encenderla por Wake-on-LAN («Encender con Wi-Fi/LAN» activado en la tele).</summary>
     public string LgMac { get; set; } = "";
+    /// <summary>
+    /// «Auto» (pregunta a la tele), «WebOs» (2014 en adelante: encender, entrada, apagar) o
+    /// «NetCast» (anteriores, p. ej. la 50LB5830: solo apagar; no se pueden encender por red).
+    /// </summary>
+    public string LgTipo { get; set; } = "Auto";
     /// <summary>Entrada a la que cambiar al entrar en modo sofá (HDMI_1, HDMI_2…). Vacío: no cambiar.</summary>
     public string LgEntrada { get; set; } = "HDMI_1";
     public bool EncenderAlEntrar { get; set; } = true;

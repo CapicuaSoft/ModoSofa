@@ -83,3 +83,28 @@ public class RetroArchProtocoloTests
         Assert.Null(RetroArchProtocolo.EstadoDe(respuesta));
     }
 }
+
+public class NetCastProtocoloTests
+{
+    [Fact]
+    public void Saludo_lleva_solo_las_cifras_del_codigo()
+    {
+        var xml = NetCastProtocolo.Saludo(" 123 456 ");
+        Assert.Contains("<name>hello</name><value>123456</value><port>8080</port>", xml);
+        Assert.Throws<FormatException>(() => NetCastProtocolo.Saludo("abc"));
+    }
+
+    [Fact]
+    public void Apagar_es_la_tecla_1()
+    {
+        Assert.Contains("<name>HandleKeyInput</name><value>1</value>", NetCastProtocolo.Pulsar(NetCastProtocolo.Tecla.Encendido));
+    }
+
+    [Fact]
+    public void Lee_el_modelo_de_la_respuesta_real_de_la_50LB5830()
+    {
+        const string respuesta = """<?xml version="1.0" encoding="utf-8"?><envelope><device><deviceType>TV</deviceType><modelName>50LB5830-UV_36</modelName><friendlyName>[TV][LG]TVLG</friendlyName></device></envelope>""";
+        Assert.Equal("50LB5830-UV_36", NetCastProtocolo.Modelo(respuesta));
+        Assert.Null(NetCastProtocolo.Modelo("<html>404</html>"));
+    }
+}

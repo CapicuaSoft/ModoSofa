@@ -65,8 +65,13 @@ public static class CatalogoAcciones
             log.LogInformation("Guardián de foco {Estado}.", modo.GuardianActivo ? "activado" : "en pausa");
         }), Exclusiva: false));
 
-        r.Registrar(new Accion("tele.encender", "Encender tele", "Tele", ct => tele.EncenderAsync(ct)));
-        r.Registrar(new Accion("tele.apagar", "Apagar tele", "Tele", ct => tele.ApagarAsync(ct)));
+        // Solo si se controla la tele. Una NetCast apagada no escucha la red: no se ofrece encenderla.
+        if (tele.Configurada)
+        {
+            if (!config.Tele.LgTipo.Equals("NetCast", StringComparison.OrdinalIgnoreCase))
+                r.Registrar(new Accion("tele.encender", "Encender tele", "Tele", ct => tele.EncenderAsync(ct)));
+            r.Registrar(new Accion("tele.apagar", "Apagar tele", "Tele", ct => tele.ApagarAsync(ct)));
+        }
 
         r.Registrar(new Accion("app.buscar", "Buscar actualizaciones", "ModoSofá", ct => actualizacion.BuscarAsync(forzar: true, ct)));
         r.Registrar(new Accion("app.actualizar", "Actualizar ModoSofá", "ModoSofá", ct => actualizacion.InstalarAhoraAsync(ct)));

@@ -87,8 +87,28 @@ public sealed class ModoServicio(
             }
             e.PantallasAnteriores = pantallas.Guardar();
             almacen.Guardar();
-            if (pantallas.SoloPantalla(fragmentoTele))
-                await Task.Delay(1500, ct); // que Windows termine de recolocar el escritorio
+
+            // Lo normal es enchufar el cable y después encender la tele y buscar su entrada HDMI.
+            // Hasta que la tele muestra la entrada del PC, Windows la ve conectada pero no puede
+            // activarla (ERROR_BAD_CONFIGURATION, 1610): se reintenta durante un rato.
+            var limite = DateTime.UtcNow.AddSeconds(config.Tele.EsperaImagenS);
+            var avisado = false;
+            while (!pantallas.SoloPantalla(fragmentoTele, avisar: false))
+            {
+                if (DateTime.UtcNow > limite || !pantallas.EstaConectada(fragmentoTele))
+                {
+                    pantallas.SoloPantalla(fragmentoTele); // último intento, ya con sus avisos en el log
+                    log.LogWarning("La tele no aceptó la imagen del PC en {Segundos} s: ¿está encendida y en la entrada HDMI del PC?", config.Tele.EsperaImagenS);
+                    return;
+                }
+                if (!avisado)
+                {
+                    log.LogInformation("Esperando a que la tele muestre la entrada HDMI del PC…");
+                    avisado = true;
+                }
+                await Task.Delay(3000, ct);
+            }
+            await Task.Delay(1500, ct); // que Windows termine de recolocar el escritorio
         });
 
         if (!string.IsNullOrWhiteSpace(config.Audio.DispositivoSofa))
@@ -178,14 +198,14 @@ public sealed class ModoServicio(
         if (e.PlanEnergiaAnterior is { } plan)
             await PasoAsync("Energía", () => { energia.ActivarPlan(plan); return Task.CompletedTask; });
 
-        if (e.PantallasAnteriores is not null)
+        // Siempre, aunque no se guardara nada: si la entrada falló antes de guardar (la tele no
+        // aceptaba la imagen), Restaurar(null) extiende a todas las pantallas y no deja un monitor
+        // apagado (pasó en las pruebas).
+        await PasoAsync("Pantallas", async () =>
         {
-            await PasoAsync("Pantallas", async () =>
-            {
-                pantallas.Restaurar(e.PantallasAnteriores);
-                await Task.Delay(2000, ct); // las ventanas se recolocan contra la topología restaurada
-            });
-        }
+            pantallas.Restaurar(e.PantallasAnteriores);
+            await Task.Delay(2000, ct); // las ventanas se recolocan contra la topología restaurada
+        });
 
         if (e.AudioAnterior is { } salida)
         {

@@ -71,4 +71,6 @@ public sealed class Secretos
     public string TokenApi { get; set; } = "";
     public string TokenAlexa { get; set; } = "";
     public string LgClaveCliente { get; set; } = "";
+    /// <summary>Código de vinculación que muestra en pantalla una tele LG NetCast.</summary>
+    public string LgCodigoNetCast { get; set; } = "";
 }

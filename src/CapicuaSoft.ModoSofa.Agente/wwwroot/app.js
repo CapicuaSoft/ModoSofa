@@ -182,6 +182,24 @@
       `<p>Mandos: ${d.mandos} · Versión ${esc(d.version)}</p>`;
   }
 
+  async function cargarTele() {
+    const t = await ModoSofa.api("/tele");
+    const estado = $("tele-estado");
+    if (!t.configurada) {
+      estado.textContent = "Control de la tele desactivado (Tele.ControlarLg y Tele.LgIp en la configuración).";
+      $("tele-vincular").hidden = true;
+      return;
+    }
+    if (t.tipo === "NetCast") {
+      estado.textContent = !t.encendida ? `LG NetCast en ${t.ip}: apagada o sin red (enciéndela para vincular).`
+        : `LG ${t.modelo || "NetCast"} en ${t.ip} · ${t.vinculada ? "vinculada ✅ (se apaga sola al volver al trabajo)" : "sin vincular"}`;
+      $("tele-vincular").hidden = t.vinculada || !t.encendida;
+    } else {
+      estado.textContent = `LG webOS en ${t.ip} (se vincula aceptando el aviso en la propia tele).`;
+      $("tele-vincular").hidden = true;
+    }
+  }
+
   async function cargarConfig() {
     $("config").value = await ModoSofa.api("/config", { texto: true });
   }
@@ -202,7 +220,7 @@
     document.querySelectorAll(".vista").forEach(v => v.hidden = v.id !== "vista-" + nombre);
     document.querySelectorAll("#pestanas button").forEach(b => b.classList.toggle("activa", b.dataset.vista === nombre));
     $("pestanas").hidden = nombre === "vincular";
-    if (nombre === "ajustes") { cargarDiagnostico().catch(manejarError); cargarConfig().catch(manejarError); }
+    if (nombre === "ajustes") { cargarDiagnostico().catch(manejarError); cargarConfig().catch(manejarError); cargarTele().catch(manejarError); }
   }
 
   document.querySelectorAll("#pestanas button").forEach(b => b.onclick = () => mostrarVista(b.dataset.vista));
@@ -215,6 +233,17 @@
   $("vaciar-log").onclick = async () => { await ModoSofa.api("/log", { method: "DELETE" }); entradasLog.length = 0; pintarLog(); };
   $("acerca-buscar").onclick = () => ejecutar({ id: "app.buscar" });
   $("acerca-actualizar").onclick = () => ejecutar({ id: "app.actualizar" });
+  $("tele-codigo").onclick = async () => {
+    try { await ModoSofa.api("/tele/codigo", { method: "POST" }); aviso("Mira la tele: debe aparecer un código."); }
+    catch (e) { aviso("No se pudo pedir el código a la tele", true); }
+  };
+  $("tele-ok").onclick = async () => {
+    try {
+      await ModoSofa.api("/tele/vincular", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codigo: $("tele-clave").value }) });
+      aviso("Tele vinculada"); cargarTele();
+    } catch (e) { aviso("La tele no aceptó el código", true); }
+  };
   $("recargar-diag").onclick = () => cargarDiagnostico().catch(manejarError);
   $("guardar-config").onclick = guardarConfig;
   $("desvincular").onclick = async () => {

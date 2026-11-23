@@ -29,7 +29,7 @@ namespace CapicuaSoft.ModoSofa.Agente.Efectos;
 /// La primera vez la tele muestra un aviso que hay que aceptar con su mando; la clave que devuelve
 /// se guarda en secretos.json y las siguientes veces no pregunta.
 /// </summary>
-public sealed class TeleLg(Configuracion config, AlmacenSecretos secretos, ILogger<TeleLg> log)
+public sealed class TeleWebOs(Configuracion config, AlmacenSecretos secretos, ILogger<TeleWebOs> log)
 {
     private static readonly string[] Permisos =
     [

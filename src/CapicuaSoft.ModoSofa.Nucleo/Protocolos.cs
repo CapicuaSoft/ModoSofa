@@ -64,3 +64,38 @@ public static class RetroArchProtocolo
         return partes.Length >= 2 && partes[0] == "GET_STATUS" ? partes[1] : null;
     }
 }
+
+/// <summary>
+/// Teles LG NetCast (2012–2014, p. ej. la 50LB5830): API UDAP por HTTP en el puerto 8080. Se
+/// vinculan con un código de 6 cifras que la tele muestra en pantalla, y después aceptan
+/// pulsaciones de su mando a distancia.
+/// </summary>
+public static class NetCastProtocolo
+{
+    /// <summary>Teclas del mando (HandleKeyInput) que usa ModoSofá.</summary>
+    public enum Tecla { Encendido = 1, SubirVolumen = 24, BajarVolumen = 25, Silenciar = 26, Entradas = 47 }
+
+    public const string AgenteDeUsuario = "UDAP/2.0";
+
+    public static string PedirCodigo() =>
+        """<?xml version="1.0" encoding="utf-8"?><envelope><api type="pairing"><name>showKey</name></api></envelope>""";
+
+    /// <summary>Saludo con el código: vincula la primera vez y abre sesión las siguientes.</summary>
+    public static string Saludo(string codigo, int puerto = 8080)
+    {
+        var limpio = new string(codigo.Where(char.IsAsciiDigit).ToArray());
+        if (limpio.Length == 0) throw new FormatException("El código de la tele son números.");
+        return $"""<?xml version="1.0" encoding="utf-8"?><envelope><api type="pairing"><name>hello</name><value>{limpio}</value><port>{puerto}</port></api></envelope>""";
+    }
+
+    public static string Pulsar(Tecla tecla) =>
+        $"""<?xml version="1.0" encoding="utf-8"?><envelope><api type="command"><name>HandleKeyInput</name><value>{(int)tecla}</value></api></envelope>""";
+
+    /// <summary>La respuesta a «netrcu.model» lleva el modelo: así se reconoce una NetCast.</summary>
+    public static string? Modelo(string respuesta)
+    {
+        var i = respuesta.IndexOf("<modelName>", StringComparison.Ordinal);
+        var j = respuesta.IndexOf("</modelName>", StringComparison.Ordinal);
+        return i >= 0 && j > i ? respuesta[(i + "<modelName>".Length)..j].Trim() : null;
+    }
+}

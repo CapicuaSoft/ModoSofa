@@ -110,10 +110,22 @@ public sealed class Pantallas(ILogger<Pantallas> log)
     }
 
     /// <summary>Deja activa solo la pantalla cuyo nombre contiene el fragmento (será la principal).</summary>
-    public bool SoloPantalla(string fragmento)
+    public bool SoloPantalla(string fragmento, bool avisar = true)
     {
         var (activas, modosActivos) = Consultar(QDC_ONLY_ACTIVE_PATHS);
         var indice = Array.FindIndex(activas, r => Coincide(r, fragmento));
+
+        if (indice < 0)
+        {
+            // La tele está conectada pero Windows la tiene desactivada. Montar a mano una ruta para
+            // ella lo rechaza a menudo (ERROR_BAD_CONFIGURATION, 1610, visto con la LG): se extiende
+            // a todas las pantallas, que Windows siempre acepta y elige los modos, y se reintenta.
+            var extendido = SetDisplayConfig(0, null, 0, null, SDC_APPLY | SDC_TOPOLOGY_EXTEND);
+            if (avisar) log.LogInformation("La tele estaba desactivada; se extiende el escritorio para activarla (código {Codigo}).", extendido);
+            Thread.Sleep(1500);
+            (activas, modosActivos) = Consultar(QDC_ONLY_ACTIVE_PATHS);
+            indice = Array.FindIndex(activas, r => Coincide(r, fragmento));
+        }
 
         if (indice >= 0)
         {
@@ -147,7 +159,7 @@ public sealed class Pantallas(ILogger<Pantallas> log)
         var candidata = Array.FindIndex(todas, r => r.targetInfo.targetAvailable != 0 && Coincide(r, fragmento));
         if (candidata < 0)
         {
-            log.LogWarning("No hay ninguna pantalla conectada que contenga «{Fragmento}».", fragmento);
+            if (avisar) log.LogWarning("No hay ninguna pantalla conectada que contenga «{Fragmento}».", fragmento);
             return false;
         }
 
@@ -159,7 +171,7 @@ public sealed class Pantallas(ILogger<Pantallas> log)
             SDC_APPLY | SDC_USE_SUPPLIED_DISPLAY_CONFIG | SDC_ALLOW_CHANGES | SDC_SAVE_TO_DATABASE);
         if (e != 0)
         {
-            log.LogWarning("No se pudo dejar la tele como pantalla única (código {Codigo}).", e);
+            if (avisar) log.LogWarning("No se pudo dejar la tele como pantalla única (código {Codigo}).", e);
             return false;
         }
         log.LogInformation("Pantalla única: {Nombre}.", NombreDestino(nueva.targetInfo));

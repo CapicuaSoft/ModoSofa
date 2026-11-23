@@ -99,6 +99,20 @@
           <a href="https://github.com/CapicuaSoft/ModoSofa/blob/main/LICENSE" target="_blank" rel="noopener">Licencia LGPL-2.1</a>
         </p>
       </div>
+      <div class="tarjeta">
+        <h2>Tele</h2>
+        <p id="tele-estado" class="tenue">Comprobando…</p>
+        <div id="tele-vincular" hidden>
+          <p class="tenue">1. Con la tele encendida, pide el código. 2. Escribe el que aparece en la tele.</p>
+          <div class="fila">
+            <button id="tele-codigo" class="boton-sec">Mostrar código en la tele</button>
+          </div>
+          <div class="fila">
+            <input id="tele-clave" inputmode="numeric" autocomplete="off" placeholder="Código" class="campo">
+            <button id="tele-ok" class="boton">Vincular</button>
+          </div>
+        </div>
+      </div>
       <div class="tarjeta" id="tarjeta-app" hidden>
         <h2>App Android</h2>
         <p class="tenue">La app recuerda la MAC del PC para encenderlo cuando esté apagado.</p>
