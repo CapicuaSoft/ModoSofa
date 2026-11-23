@@ -146,36 +146,37 @@ public sealed class Bandeja(
 
     private void CrearIcono()
     {
-        _titulo = new ToolStripMenuItem("ModoSofá") { Enabled = false };
+        _titulo = new ToolStripMenuItem("ModoSofá") { Enabled = false, Image = MenuIconos.Sofa };
         _alternarModo = new ToolStripMenuItem("Activar modo sofá", null, (_, _) =>
             registro.Lanzar(modo.Modo == Modo.Sofa ? "modo.trabajo" : "modo.sofa", "bandeja"));
 
         var inicio = new ToolStripMenuItem("Iniciar con Windows") { Checked = IniciaConWindows(), CheckOnClick = true };
         inicio.CheckedChanged += (_, _) => FijarInicioConWindows(inicio.Checked);
 
+        // Como en SilentRunner: iconos de 32 px que el menú reescala según el DPI.
         var menu = new ContextMenuStrip();
         menu.Items.AddRange(
         [
             _titulo,
             new ToolStripSeparator(),
             _alternarModo,
-            new ToolStripMenuItem("Mostrar menú en la tele", null, (_, _) => Alternar()),
-            new ToolStripMenuItem("Cerrar juego", null, (_, _) => registro.Lanzar("juego.cerrar", "bandeja")),
+            new ToolStripMenuItem("Mostrar menú en la tele", MenuIconos.Tele, (_, _) => Alternar()),
+            new ToolStripMenuItem("Cerrar juego", MenuIconos.Detener, (_, _) => registro.Lanzar("juego.cerrar", "bandeja")),
             new ToolStripSeparator(),
-            new ToolStripMenuItem("Vincular móvil…", null, (_, _) => new VentanaVincular(config.Puerto, secretos.Valor.TokenApi).Show()),
-            new ToolStripMenuItem("Abrir panel en el navegador", null, (_, _) => AbrirPanel()),
-            new ToolStripMenuItem("Copiar token de Alexa", null, (_, _) => Clipboard.SetText(secretos.Valor.TokenAlexa)),
-            new ToolStripMenuItem("Abrir carpeta de configuración", null, (_, _) =>
+            new ToolStripMenuItem("Vincular móvil…", MenuIconos.Movil, (_, _) => new VentanaVincular(config.Puerto, secretos.Valor.TokenApi).Show()),
+            new ToolStripMenuItem("Abrir panel en el navegador", MenuIconos.Globo, (_, _) => AbrirPanel()),
+            new ToolStripMenuItem("Copiar token de Alexa", MenuIconos.Llave, (_, _) => Clipboard.SetText(secretos.Valor.TokenAlexa)),
+            new ToolStripMenuItem("Abrir carpeta de configuración", MenuIconos.Carpeta, (_, _) =>
                 Process.Start(new ProcessStartInfo(Rutas.Datos) { UseShellExecute = true })),
-            new ToolStripMenuItem("Abrir carpeta de logs", null, (_, _) =>
+            new ToolStripMenuItem("Abrir carpeta de logs", MenuIconos.Documento, (_, _) =>
                 Process.Start(new ProcessStartInfo(Rutas.Logs) { UseShellExecute = true })),
             inicio,
             new ToolStripSeparator(),
-            _actualizar = new ToolStripMenuItem("Actualizar", null, (_, _) => AcercaDe.Mostrar(_actualizacion!)) { Visible = false, Font = new Font(SystemFonts.MenuFont!, FontStyle.Bold) },
-            new ToolStripMenuItem("Acerca de ModoSofá", null, (_, _) => AcercaDe.Mostrar(_actualizacion!)),
-            new ToolStripMenuItem("Invitar a un café", null, (_, _) => Enlaces.Abrir(Enlaces.Donacion)),
+            _actualizar = new ToolStripMenuItem("Actualizar", MenuIconos.Actualizar, (_, _) => AcercaDe.Mostrar(_actualizacion!)) { Visible = false, Font = new Font(SystemFonts.MenuFont!, FontStyle.Bold) },
+            new ToolStripMenuItem("Acerca de ModoSofá", MenuIconos.Informacion, (_, _) => AcercaDe.Mostrar(_actualizacion!)),
+            new ToolStripMenuItem("Invitar a un café", MenuIconos.Corazon, (_, _) => Enlaces.Abrir(Enlaces.Donacion)),
             new ToolStripSeparator(),
-            new ToolStripMenuItem("Salir", null, (_, _) => vida.StopApplication()),
+            new ToolStripMenuItem("Salir", MenuIconos.Salir, (_, _) => vida.StopApplication()),
         ]);
 
         _icono = new NotifyIcon
@@ -196,6 +197,8 @@ public sealed class Bandeja(
         _icono!.Text = texto;
         _titulo!.Text = texto;
         _alternarModo!.Text = sofa ? "Volver a trabajar" : "Activar modo sofá";
+        _alternarModo.Image = sofa ? MenuIconos.Trabajo : MenuIconos.Sofa;
+        _titulo.Image = sofa ? MenuIconos.Sofa : MenuIconos.Trabajo;
         var nueva = _actualizacion?.Disponible;
         _actualizar!.Visible = nueva is not null;
         if (nueva is not null) _actualizar.Text = $"Hay una versión nueva: {nueva.Version}";

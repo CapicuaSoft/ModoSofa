@@ -25,6 +25,13 @@ using ModoSofa.Agente.Servicios;
 using ModoSofa.Agente.Win32;
 using ModoSofa.Nucleo;
 
+// «--vista-menu <png>»: dibuja el menú de la bandeja en una imagen y sale (revisión de iconos).
+if (args.Length == 2 && args[0] == "--vista-menu")
+{
+    VistaMenu.Guardar(args[1]);
+    return;
+}
+
 // Una sola instancia. "--esperar" lo usa el reinicio tras guardar la configuración.
 using var mutex = new Mutex(false, @"Local\ModoSofa.Agente");
 if (!mutex.WaitOne(args.Contains("--esperar") ? TimeSpan.FromSeconds(20) : TimeSpan.Zero))
