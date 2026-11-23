@@ -112,6 +112,8 @@ CatalogoAcciones.Registrar(app.Services);
 
 var tipos = new FileExtensionContentTypeProvider();
 tipos.Mappings[".webmanifest"] = "application/manifest+json";
+// Para poder pasar la app Android al móvil por la Wi-Fi de casa (wwwroot/modosofa.apk).
+tipos.Mappings[".apk"] = "application/vnd.android.package-archive";
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
