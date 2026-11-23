@@ -29,7 +29,7 @@
 
     <!-- Inicio -->
     <section id="vista-inicio" class="vista">
-      <a id="version-nueva" class="tarjeta novedad" target="_blank" rel="noopener" hidden>
+      <a id="version-nueva" class="tarjeta novedad" hidden>
         <b>Hay una versión nueva de ModoSofá</b>
         <span id="version-nueva-texto" class="tenue"></span>
       </a>
@@ -82,10 +82,30 @@
           <span id="config-error" class="error"></span>
         </div>
       </div>
+      <div class="tarjeta">
+        <h2>Acerca de</h2>
+        <p><b>ModoSofá</b> <span id="acerca-version" class="tenue"></span></p>
+        <p id="acerca-actualizacion" class="tenue"></p>
+        <div class="fila">
+          <button id="acerca-buscar" class="boton-sec">Buscar actualizaciones</button>
+          <button id="acerca-actualizar" class="boton" hidden>Actualizar el PC</button>
+        </div>
+        <p class="tenue">ModoSofá es gratuito. Si te resulta útil y quieres apoyar su desarrollo, puedes
+          invitarme a un café. Es completamente opcional.</p>
+        <a class="boton cafe" href="https://paypal.me/jbautistamartin" target="_blank" rel="noopener">☕ Invitar a un café</a>
+        <p class="tenue pie">
+          <a href="https://github.com/jbautistamartin/ModoSofa" target="_blank" rel="noopener">Proyecto en GitHub</a> ·
+          © 2026 José Luis Bautista Martín ·
+          <a href="https://github.com/jbautistamartin/ModoSofa/blob/main/LICENSE" target="_blank" rel="noopener">Licencia LGPL-2.1</a>
+        </p>
+      </div>
       <div class="tarjeta" id="tarjeta-app" hidden>
         <h2>App Android</h2>
         <p class="tenue">La app recuerda la MAC del PC para encenderlo cuando esté apagado.</p>
-        <button id="app-ajustes" class="boton-sec">Ajustes de la app</button>
+        <div class="fila">
+          <button id="app-ajustes" class="boton-sec">Ajustes de la app</button>
+          <button id="app-acerca" class="boton-sec">Acerca de la app y actualizaciones</button>
+        </div>
       </div>
       <div class="tarjeta">
         <h2>Este móvil</h2>

@@ -1,3 +1,20 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 // Comunicación con el agente, compartida por el panel del móvil y el overlay de la tele.
 const ModoSofa = (() => {
   const CLAVE = "modosofa.token";
@@ -19,7 +36,8 @@ const ModoSofa = (() => {
     if (r.status === 401) throw Object.assign(new Error("No autorizado"), { noAutorizado: true });
     if (!r.ok && r.status !== 202) throw new Error("Error " + r.status);
     const tipo = r.headers.get("content-type") || "";
-    return tipo.includes("json") ? r.json() : r.text();
+    // { texto: true }: el contenido tal cual (p. ej. config.json, que lleva comentarios).
+    return !opciones.texto && tipo.includes("json") ? r.json() : r.text();
   }
 
   /** Suscripción a los eventos en vivo. EventSource se reconecta solo. */

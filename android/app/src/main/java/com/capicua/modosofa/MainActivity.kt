@@ -1,8 +1,27 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 package com.capicua.modosofa
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -91,6 +110,99 @@ class MainActivity : AppCompatActivity() {
         })
 
         if (enlace.isEmpty()) abrirAjustes() else cargar()
+        if (Actualizador.toca(this)) buscarActualizacion(silencioso = true)
+    }
+
+    // --- Autoactualización -----------------------------------------------------------------
+
+    private fun buscarActualizacion(silencioso: Boolean) {
+        thread {
+            val resultado = runCatching { Actualizador.buscar(this) }
+            principal.post {
+                if (isFinishing) return@post
+                val novedad = resultado.getOrNull()
+                when {
+                    novedad != null -> ofrecerActualizacion(novedad)
+                    silencioso -> Unit
+                    resultado.isFailure -> Toast.makeText(this, "No se pudo comprobar: ${resultado.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                    else -> Toast.makeText(this, "Tienes la última versión (${BuildConfig.VERSION_NAME}).", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun ofrecerActualizacion(novedad: Actualizador.Novedad) {
+        AlertDialog.Builder(this)
+            .setTitle("ModoSofá ${novedad.version} disponible")
+            .setMessage("Tienes la ${BuildConfig.VERSION_NAME}. Se descarga, se comprueba su firma SHA-256 y Android te pedirá confirmar la instalación.")
+            .setPositiveButton("Actualizar") { _, _ -> descargarEInstalar(novedad) }
+            .setNeutralButton("Novedades") { _, _ -> abrirEnlace(novedad.pagina) }
+            .setNegativeButton("Más tarde", null)
+            .show()
+    }
+
+    private fun descargarEInstalar(novedad: Actualizador.Novedad) {
+        val estado = TextView(this).apply { setPadding(64, 32, 64, 0); text = "Descargando… 0 %" }
+        val dialogo = AlertDialog.Builder(this).setTitle("Actualizando ModoSofá").setView(estado).setCancelable(false).show()
+        thread {
+            val resultado = runCatching {
+                Actualizador.descargar(this, novedad) { p -> principal.post { estado.text = "Descargando… $p %" } }
+            }
+            principal.post {
+                dialogo.dismiss()
+                resultado.onSuccess { apk ->
+                    if (!Actualizador.instalar(this, apk))
+                        Toast.makeText(this, "Permite a ModoSofá instalar apps y vuelve a pulsar «Actualizar».", Toast.LENGTH_LONG).show()
+                }.onFailure {
+                    Toast.makeText(this, "No se pudo actualizar: ${it.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    // --- Acerca de -------------------------------------------------------------------------
+
+    private fun abrirAcercaDe() {
+        val margen = (16 * resources.displayMetrics.density).toInt()
+        val contenido = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(margen + margen / 2, margen, margen + margen / 2, 0)
+            addView(TextView(context).apply {
+                text = "Versión ${BuildConfig.VERSION_NAME}\n\nMando a distancia del PC para jugar desde el sofá."
+            })
+            addView(TextView(context).apply {
+                setPadding(0, margen, 0, 0)
+                text = "ModoSofá es gratuito. Si te resulta útil y quieres apoyar su desarrollo, puedes invitarme a un café. Es completamente opcional."
+            })
+            addView(Button(context).apply {
+                text = "☕  Invitar a un café"
+                isAllCaps = false
+                setOnClickListener { abrirEnlace(URL_DONACION) }
+            })
+            addView(TextView(context).apply {
+                setPadding(0, margen / 2, 0, 0)
+                textSize = 12f
+                text = "© 2026 José Luis Bautista Martín\nDistribuido bajo la licencia LGPL-2.1"
+                setOnClickListener { abrirEnlace(URL_LICENCIA) }
+            })
+        }
+        AlertDialog.Builder(this)
+            .setTitle("ModoSofá")
+            .setView(contenido)
+            .setPositiveButton("Buscar actualizaciones") { _, _ -> buscarActualizacion(silencioso = false) }
+            .setNeutralButton("Proyecto") { _, _ -> abrirEnlace(URL_PROYECTO) }
+            .setNegativeButton("Cerrar", null)
+            .show()
+    }
+
+    private fun abrirEnlace(url: String) {
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+    }
+
+    companion object {
+        const val URL_PROYECTO = "https://github.com/jbautistamartin/ModoSofa"
+        const val URL_DONACION = "https://paypal.me/jbautistamartin"
+        const val URL_LICENCIA = "https://github.com/jbautistamartin/ModoSofa/blob/main/LICENSE"
     }
 
     private fun cargar() {
@@ -171,6 +283,7 @@ class MainActivity : AppCompatActivity() {
                 difusion = campoDifusion.text.toString().ifBlank { "255.255.255.255" }
                 cargar()
             }
+            .setNeutralButton("Acerca de") { _, _ -> abrirAcercaDe() }
             .setNegativeButton("Cancelar", null)
             .show()
     }
@@ -180,6 +293,11 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun recordarMac(valor: String) {
             if (Regex("^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$").matches(valor)) mac = valor
+        }
+
+        @JavascriptInterface
+        fun acercaDe() {
+            principal.post { abrirAcercaDe() }
         }
 
         @JavascriptInterface

@@ -1,3 +1,20 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 using System.Reflection;
 using System.Text.Json;
 using ModoSofa.Agente.Efectos;
@@ -19,7 +36,8 @@ public sealed record Instantanea(
     int Mandos,
     string? Ocupado,
     string Version,
-    VersionNueva? VersionNueva);
+    VersionNueva? VersionNueva,
+    string Actualizacion);
 
 /// <summary>Estado en vivo para el móvil y el overlay; se publica por SSE cuando cambia.</summary>
 public sealed class PanelEstado(
@@ -52,7 +70,8 @@ public sealed class PanelEstado(
             mando.Conectados,
             _ocupado,
             Version,
-            actualizacion.Disponible);
+            actualizacion.Disponible,
+            actualizacion.Situacion);
     }
 
     public void Avisar() => _despertar.Release();

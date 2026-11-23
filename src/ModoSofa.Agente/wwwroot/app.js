@@ -1,3 +1,20 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 // Panel del móvil (PWA).
 (() => {
   const $ = id => document.getElementById(id);
@@ -70,11 +87,16 @@
     $("ocupado").hidden = !e.ocupado;
     $("ocupado-texto").textContent = e.ocupado || "";
     $("principal").textContent = sofa ? "Volver a trabajar" : "Activar modo sofá";
+    $("acerca-version").textContent = "versión " + e.version;
+    $("acerca-actualizacion").textContent = e.actualizacion || "";
+    $("acerca-actualizar").hidden = !e.versionNueva;
+    if (e.versionNueva) $("acerca-actualizar").textContent = "Actualizar el PC a la " + e.versionNueva.version;
     const nueva = e.versionNueva;
     $("version-nueva").hidden = !nueva;
     if (nueva) {
-      $("version-nueva").href = nueva.url;
-      $("version-nueva-texto").textContent = `${nueva.version} (tienes la ${e.version}). Descarga el instalador en el PC.`;
+      $("version-nueva").href = "#";
+      $("version-nueva").onclick = ev => { ev.preventDefault(); mostrarVista("ajustes"); };
+      $("version-nueva-texto").textContent = `${nueva.version} (tienes la ${e.version}). Se instala sola en modo trabajo, o desde Ajustes.`;
     }
     $("principal").classList.toggle("sofa", sofa);
     document.querySelectorAll('[data-id="guardian.alternar"] .sub')
@@ -85,7 +107,7 @@
     const acciones = await ModoSofa.api("/acciones");
     const grupos = new Map();
     for (const a of acciones) {
-      if (a.id.startsWith("modo.")) continue; // van en el botón principal
+      if (a.id.startsWith("modo.") || a.id.startsWith("app.")) continue; // botón principal y «Acerca de»
       if (!grupos.has(a.grupo)) grupos.set(a.grupo, []);
       grupos.get(a.grupo).push(a);
     }
@@ -157,7 +179,7 @@
   }
 
   async function cargarConfig() {
-    $("config").value = await ModoSofa.api("/config");
+    $("config").value = await ModoSofa.api("/config", { texto: true });
   }
 
   async function guardarConfig() {
@@ -187,6 +209,8 @@
   });
   $("principal").onclick = () => ejecutar({ id: estado?.modo === "sofa" ? "modo.trabajo" : "modo.sofa" });
   $("vaciar-log").onclick = async () => { await ModoSofa.api("/log", { method: "DELETE" }); entradasLog.length = 0; pintarLog(); };
+  $("acerca-buscar").onclick = () => ejecutar({ id: "app.buscar" });
+  $("acerca-actualizar").onclick = () => ejecutar({ id: "app.actualizar" });
   $("recargar-diag").onclick = () => cargarDiagnostico().catch(manejarError);
   $("guardar-config").onclick = guardarConfig;
   $("desvincular").onclick = async () => {
@@ -223,6 +247,7 @@
     if (!app) return;
     $("tarjeta-app").hidden = false;
     $("app-ajustes").onclick = () => app.abrirAjustes();
+    $("app-acerca").onclick = () => app.acercaDe();
     try {
       const d = await ModoSofa.api("/diagnostico");
       const red = Array.isArray(d.red) ? d.red : [];

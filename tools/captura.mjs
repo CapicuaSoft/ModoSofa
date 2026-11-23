@@ -1,12 +1,29 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 // Captura de una página con Edge headless por CDP: espera de verdad (las páginas con SSE nunca
 // terminan de «cargar»), recoge los errores de consola y emula un móvil.
-// Uso: node tools/captura.mjs <url> <salida.png> [ancho] [alto] [esperaMs]
+// Uso: node tools/captura.mjs <url> <salida.png> [ancho] [alto] [esperaMs] [js-antes-de-la-foto]
 import { spawn } from "node:child_process";
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const [url, salida, ancho = "412", alto = "915", espera = "3000"] = process.argv.slice(2);
+const [url, salida, ancho = "412", alto = "915", espera = "3000", guion = ""] = process.argv.slice(2);
 const edge = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
 const puerto = 9333;
 const perfil = mkdtempSync(join(tmpdir(), "modosofa-captura-"));
@@ -37,6 +54,7 @@ await cdp("Page.enable");
 await cdp("Emulation.setDeviceMetricsOverride", { width: +ancho, height: +alto, deviceScaleFactor: 1, mobile: +ancho < 600 });
 await cdp("Page.navigate", { url });
 await dormir(+espera);
+if (guion) { await cdp("Runtime.evaluate", { expression: guion }); await dormir(800); }
 
 const r = await cdp("Runtime.evaluate", { expression: "document.body.scrollWidth + 'x' + document.body.scrollHeight", returnByValue: true });
 console.log("tamaño del contenido:", r.result.value, "· viewport:", `${ancho}x${alto}`);

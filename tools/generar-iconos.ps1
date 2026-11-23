@@ -1,4 +1,21 @@
-﻿# Genera los iconos a partir del mismo dibujo que el de la bandeja (Interfaz/Icono.cs):
+﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+# Copyright (C) 2026  José Luis Bautista Martín
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+# Genera los iconos a partir del mismo dibujo que el de la bandeja (Interfaz/Icono.cs):
 #  - wwwroot/icono-192.png y icono-512.png (PWA, con margen para iconos «maskable»)
 #  - src/ModoSofa.Agente/ModoSofa.ico (ejecutable e instalador; PNG dentro del ICO, Vista+)
 param([string]$Raiz = (Split-Path $PSScriptRoot -Parent))

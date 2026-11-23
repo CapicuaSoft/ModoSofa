@@ -1,3 +1,20 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 using System.Diagnostics;
 using Microsoft.Win32;
 using ModoSofa.Agente.Efectos;
@@ -20,7 +37,8 @@ public interface IOverlay
 /// </summary>
 public sealed class Bandeja(
     Configuracion config, AlmacenSecretos secretos, RegistroAcciones registro, ModoServicio modo,
-    RetroArch retroArch, IHostApplicationLifetime vida, ILogger<Bandeja> log) : IHostedService, IOverlay
+    RetroArch retroArch, IHostApplicationLifetime vida, IServiceProvider servicios, ILogger<Bandeja> log)
+    : IHostedService, IOverlay
 {
     private const string ClaveInicio = @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run";
     private const string NombreInicio = "ModoSofa";
@@ -29,16 +47,19 @@ public sealed class Bandeja(
     private SynchronizationContext? _ui;
     private ApplicationContext? _contexto;
     private NotifyIcon? _icono;
-    private ToolStripMenuItem? _titulo, _alternarModo;
+    private ToolStripMenuItem? _titulo, _alternarModo, _actualizar;
+    // Se resuelve al arrancar y no en el constructor: ActualizacionServicio no depende de la bandeja,
+    // pero así queda claro que la bandeja tampoco lo necesita para existir.
+    private ActualizacionServicio? _actualizacion;
     private VentanaOverlay? _overlay;
     private bool _pausamosRetroArch;
-    private string? _urlNotificacion;
 
     public bool Visible => _overlay?.Visible ?? false;
 
     public Task StartAsync(CancellationToken ct)
     {
         var listo = new TaskCompletionSource();
+        _actualizacion = servicios.GetRequiredService<ActualizacionServicio>();
         _hilo = new Thread(() =>
         {
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
@@ -49,6 +70,8 @@ public sealed class Bandeja(
             CrearIcono();
             _overlay = new VentanaOverlay(config.Puerto, secretos.Valor.TokenApi, Rutas.WebView2, Ocultar);
             _contexto = new ApplicationContext();
+            // «ModoSofa.exe --acerca-de» abre «Acerca de» al arrancar (útil para probarla).
+            if (Environment.GetCommandLineArgs().Contains("--acerca-de")) AcercaDe.Mostrar(_actualizacion!);
             listo.SetResult();
             Application.Run(_contexto);
             _icono!.Visible = false;
@@ -58,6 +81,11 @@ public sealed class Bandeja(
         _hilo.Start();
 
         modo.Cambio += () => EnUi(ActualizarIcono);
+        _actualizacion.Cambio += () => EnUi(ActualizarIcono);
+        _actualizacion.Nueva += v => EnUi(() => _icono!.ShowBalloonTip(10000, $"ModoSofá {v.Version} disponible",
+            config.Actualizaciones.InstalarSolo
+                ? "Se instalará sola en modo trabajo. Pulsa para ver los detalles."
+                : "Pulsa para actualizar.", ToolTipIcon.Info));
         return listo.Task;
     }
 
@@ -67,13 +95,6 @@ public sealed class Bandeja(
         _hilo?.Join(3000);
         return Task.CompletedTask;
     }
-
-    /// <summary>Globo de notificación; al pulsarlo se abre la URL.</summary>
-    public void Notificar(string titulo, string texto, string url) => EnUi(() =>
-    {
-        _urlNotificacion = url;
-        _icono!.ShowBalloonTip(10000, titulo, texto, ToolTipIcon.Info);
-    });
 
     // --- Overlay ---------------------------------------------------------------------------
 
@@ -144,6 +165,10 @@ public sealed class Bandeja(
                 Process.Start(new ProcessStartInfo(Rutas.Logs) { UseShellExecute = true })),
             inicio,
             new ToolStripSeparator(),
+            _actualizar = new ToolStripMenuItem("Actualizar", null, (_, _) => AcercaDe.Mostrar(_actualizacion!)) { Visible = false, Font = new Font(SystemFonts.MenuFont!, FontStyle.Bold) },
+            new ToolStripMenuItem("Acerca de ModoSofá", null, (_, _) => AcercaDe.Mostrar(_actualizacion!)),
+            new ToolStripMenuItem("Invitar a un café", null, (_, _) => Enlaces.Abrir(Enlaces.Donacion)),
+            new ToolStripSeparator(),
             new ToolStripMenuItem("Salir", null, (_, _) => vida.StopApplication()),
         ]);
 
@@ -154,10 +179,7 @@ public sealed class Bandeja(
             Visible = true,
         };
         _icono.DoubleClick += (_, _) => AbrirPanel();
-        _icono.BalloonTipClicked += (_, _) =>
-        {
-            if (_urlNotificacion is not null) Process.Start(new ProcessStartInfo(_urlNotificacion) { UseShellExecute = true });
-        };
+        _icono.BalloonTipClicked += (_, _) => AcercaDe.Mostrar(_actualizacion!);
         ActualizarIcono();
     }
 
@@ -168,6 +190,9 @@ public sealed class Bandeja(
         _icono!.Text = texto;
         _titulo!.Text = texto;
         _alternarModo!.Text = sofa ? "Volver a trabajar" : "Activar modo sofá";
+        var nueva = _actualizacion?.Disponible;
+        _actualizar!.Visible = nueva is not null;
+        if (nueva is not null) _actualizar.Text = $"Hay una versión nueva: {nueva.Version}";
     }
 
     private void AbrirPanel() =>

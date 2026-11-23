@@ -1,4 +1,21 @@
-﻿# Activa los comandos de red de RetroArch (network_cmd_enable) para que ModoSofá pueda cerrarlo y
+﻿# ModoSofá - Convierte el PC de trabajo en una consola de salón.
+# Copyright (C) 2026  José Luis Bautista Martín
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+# Activa los comandos de red de RetroArch (network_cmd_enable) para que ModoSofá pueda cerrarlo y
 # pausarlo limpiamente. Guarda una copia del retroarch.cfg original la primera vez.
 param([string]$EsdeExe = "C:\Games\EmulationStation\ES-DE.exe")
 . (Join-Path $PSScriptRoot "comun.ps1")

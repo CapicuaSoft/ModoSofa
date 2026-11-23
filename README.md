@@ -31,8 +31,13 @@ No necesita permisos de administrador.
 
 En la [página de releases](https://github.com/jbautistamartin/ModoSofa/releases/latest):
 `ModoSofa-Setup-X.Y.Z.exe` para el PC, `modosofa-X.Y.Z.apk` para el móvil, y la Lambda y el modelo
-de Alexa. Actualizar es ejecutar el instalador nuevo: conserva la configuración y la vinculación.
-Los cambios de cada versión están en [`CHANGELOG.md`](CHANGELOG.md).
+de Alexa. Los cambios de cada versión están en [`CHANGELOG.md`](CHANGELOG.md).
+
+**Se actualiza solo.** El programa del PC comprueba una vez al día si hay versión nueva; si la
+hay, descarga el instalador, comprueba su SHA-256 y lo instala en silencio, siempre en modo
+trabajo (nunca a mitad de una partida). La app Android avisa, descarga y verifica el APK, y Android
+pide confirmar la instalación. Configuración, vinculación del móvil y de Alexa se conservan.
+Para que solo avise: `"Actualizaciones": { "InstalarSolo": false }`.
 
 ## Atajos del mando
 
@@ -83,3 +88,14 @@ el SDK en `%LOCALAPPDATA%\Android\Sdk`.
 Instalación y puesta en marcha: [`docs/INSTALACION.md`](docs/INSTALACION.md).
 Cómo funciona por dentro: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).
 Plan y estado de cada fase: [`docs/PLAN.md`](docs/PLAN.md).
+
+## Donaciones
+
+ModoSofá es gratuito. Si te resulta útil y quieres apoyar su desarrollo, puedes
+[invitarme a un café](https://paypal.me/jbautistamartin). Es completamente opcional. También está
+en el menú de la bandeja, en «Acerca de» del PC, del móvil y de la app Android.
+
+## Licencia
+
+Este proyecto se distribuye bajo la **GNU Lesser General Public License v2.1**.
+Consulta el fichero [`LICENSE`](LICENSE) para más detalles.

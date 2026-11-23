@@ -41,6 +41,15 @@ node tools/captura.mjs <url> <png> [ancho] [alto] [esperaMs]   # captura con Edg
   coincidir (release.ps1 lo comprueba). Antes de un release: CHANGELOG.md y docs/NOTAS_RELEASE.md.
 - Los `.ps1` y el `.iss` van en **UTF-8 con BOM**: Windows PowerShell 5.1 e Inno Setup leen sin
   BOM como ANSI y estropean las tildes (p. ej. el nombre de la regla de firewall).
+- **Licencia LGPL-2.1**, como el resto de proyectos (SMSRelay, AlexaController…): todo fichero de
+  código nuevo empieza con la cabecera de licencia (copiar la de cualquier `.cs`; `#` en Python y
+  PowerShell, `;` en el `.iss`).
+- **Autoactualizable y con donación**, como los demás programas: el agente se actualiza solo con el
+  instalador del release (`ActualizacionServicio`, verificado por SHA-256, nunca en modo sofá) y
+  la app Android con su APK (`Actualizador.kt`). «Invitar a un café»
+  (`https://paypal.me/jbautistamartin`) está en la bandeja, en «Acerca de» del PC, en Ajustes del
+  móvil y en la app. Un release sin `ModoSofa-Setup-*.exe`, `*.apk` o `SHA256SUMS.txt` rompe la
+  autoactualización: `release.ps1` los genera siempre.
 - Puerto por defecto 5790 (AlexaController usa el 5780).
 - **Probar en el equipo real con cuidado:** entrar en modo sofá cierra programas (Outlook, Teams)
   y minimiza ventanas del usuario. No lo dispares sin avisar.

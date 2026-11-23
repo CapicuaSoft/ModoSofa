@@ -1,3 +1,20 @@
+// ModoSofá - Convierte el PC de trabajo en una consola de salón.
+// Copyright (C) 2026  José Luis Bautista Martín
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
 namespace ModoSofa.Nucleo;
 
 public static class Versiones
@@ -23,5 +40,24 @@ public static class Versiones
         var p = Leer(publicada);
         var a = Leer(actual);
         return p is not null && a is not null && p > a;
+    }
+}
+
+public static class SumasSha256
+{
+    /// <summary>
+    /// Busca en un SHA256SUMS.txt («hash  fichero» por línea, LF o CRLF, con o sin «*» de modo
+    /// binario) el hash de un fichero. Null si no aparece.
+    /// </summary>
+    public static string? Buscar(string sumas, string fichero)
+    {
+        foreach (var linea in sumas.Split('\n'))
+        {
+            var partes = linea.Trim().Split((char[]?)null, 2, StringSplitOptions.RemoveEmptyEntries);
+            if (partes.Length < 2 || partes[0].Length != 64) continue;
+            if (partes[1].Trim().TrimStart('*').Equals(fichero, StringComparison.OrdinalIgnoreCase))
+                return partes[0].ToLowerInvariant();
+        }
+        return null;
     }
 }

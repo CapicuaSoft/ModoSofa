@@ -8,6 +8,32 @@ Las notas largas de cada release (artefactos e instalación) están en
 
 ## [No publicado]
 
+## [0.2.0] - 2026-11-22
+
+### Añadido
+
+- **Autoactualización del PC:** si hay un release nuevo, ModoSofá descarga el instalador, comprueba
+  su SHA-256 y lo instala en silencio, solo en modo trabajo (si estás jugando, espera a que
+  vuelvas). Conserva la configuración y las vinculaciones. Con
+  `"Actualizaciones": { "InstalarSolo": false }` solo avisa.
+- **Autoactualización de la app Android:** avisa de la versión nueva, descarga el APK, lo
+  verifica con SHA-256 y Android pide confirmar la instalación.
+- **«Acerca de»** en el PC (menú de la bandeja), en Ajustes del móvil y en la app Android:
+  versión, estado de la actualización con «Buscar ahora» y «Actualizar ahora», enlace al
+  proyecto, licencia e **«Invitar a un café»**, que también está en el menú de la bandeja.
+
+### Cambiado
+
+- Cabecera de licencia LGPL-2.1 en todos los ficheros de código, y secciones de licencia y
+  donaciones en el README.
+- El instalador, en una actualización silenciosa, no repite las tareas que piden administrador
+  (firewall, RetroArch, inicio de sesión automático).
+
+### Nota
+
+- La 0.1.0 solo **avisa** de la versión nueva: hay que instalar la 0.2.0 a mano una vez. A partir
+  de ahí, las actualizaciones son automáticas.
+
 ## [0.1.0] - 2026-11-22
 
 Primera versión. Sucede a [AlexaController](https://github.com/jbautistamartin/AlexaController).

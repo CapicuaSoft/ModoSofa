@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo se comparte con el instalador de Android la carpeta donde se descarga el APK nuevo. -->
+<paths>
+    <cache-path name="actualizaciones" path="actualizaciones/" />
+</paths>
