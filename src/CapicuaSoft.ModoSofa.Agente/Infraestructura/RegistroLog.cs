@@ -20,7 +20,7 @@ namespace CapicuaSoft.ModoSofa.Agente.Infraestructura;
 public sealed record EntradaLog(DateTimeOffset Hora, string Nivel, string Categoria, string Mensaje, string? Excepcion);
 
 /// <summary>
-/// Proveedor de log propio: fichero diario en %LOCALAPPDATA%\ModoSofa\logs y las últimas entradas
+/// Proveedor de log propio: fichero diario en %LOCALAPPDATA%\CapicuaSoft\ModoSofa\logs y las últimas entradas
 /// en memoria para el visor del móvil, que las recibe en vivo.
 /// </summary>
 public sealed class RegistroLog : ILoggerProvider

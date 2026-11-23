@@ -7,8 +7,13 @@
 Se instala para tu usuario en `%LOCALAPPDATA%\Programs\ModoSofa`, sin permisos de administrador.
 Opciones: iniciar con Windows, regla de firewall para el móvil (pide administrador una vez y
 además bloquea la entrada a RetroArch desde la red), comandos de red de RetroArch e inicio de
-sesión automático. Lo que hace cada paso queda en `%LOCALAPPDATA%\ModoSofa\instalacion.log`.
+sesión automático. Lo que hace cada paso queda en
+`%LOCALAPPDATA%\CapicuaSoft\ModoSofa\instalacion.log`.
 Se desinstala desde *Configuración → Aplicaciones*; al final pregunta si borrar la configuración.
+
+Después **se actualiza solo**: una vez al día busca un release nuevo y, si lo hay, lo instala en
+silencio en modo trabajo, con la misma configuración. La 0.1.0 solo sabía avisar: desde ella hay
+que instalar la versión nueva a mano una vez.
 
 **Desde el repositorio** (desarrollo):
 
@@ -20,12 +25,13 @@ Se desinstala desde *Configuración → Aplicaciones*; al final pregunta si borr
 3. Para que el móvil llegue por la Wi-Fi de casa: ejecuta `tools/permitir-firewall.ps1` (pide
    permisos de administrador una sola vez; abre el puerto 5790 solo en redes privadas).
 
-> AlexaController usa el puerto 5780; ModoSofá usa el 5790 para que puedan convivir mientras
-> pruebas. Cuando ModoSofá funcione, quita la tarea programada de AlexaController.
+> AlexaController usa el puerto 5780 y ModoSofá el 5790, así que pueden convivir. Si vienes de
+> AlexaController, quita su tarea programada («Iniciar AlexaController») y su túnel ngrok cuando
+> ModoSofá funcione.
 
 ## 2. Ajustar la configuración
 
-La configuración está en `%APPDATA%\ModoSofa\config.json` (bandeja → *Abrir carpeta de
+La configuración está en `%APPDATA%\CapicuaSoft\ModoSofa\config.json` (bandeja → *Abrir carpeta de
 configuración*, o desde el móvil en **Ajustes**, que reinicia el agente al guardar).
 
 Con la tele enchufada, abre **Ajustes → Diagnóstico** en el móvil y copia los nombres:
@@ -37,16 +43,16 @@ Con la tele enchufada, abre **Ajustes → Diagnóstico** en el móvil y copia lo
 | `Ventanas.CerrarProcesos` | Programas de trabajo que se cierran al entrar (nombre del proceso sin `.exe`) |
 | `Energia.PlanSofa` | GUID de un plan de energía (`powercfg /list`), o vacío para no tocarlo |
 | `Audio.VolumenInicialSofa` | 0-100, o -1 para no tocar el volumen |
+| `Tele.EsperaImagenS` | Segundos que se espera a que la tele muestre la entrada HDMI del PC (90) |
+| `Lanzadores.AbrirEsdeAlEntrar` | `true` para entrar en ES-DE en vez de Steam Big Picture |
+| `Lanzadores.PantallaEspera` | `false` para no mostrar la pantalla de espera al entrar |
 
-**En este PC** la configuración se creó durante las pruebas con la entrada y salida automáticas
-desactivadas y escuchando solo en local:
+Por defecto entra en modo sofá al detectar la tele y vuelve al trabajo al desenchufarla
+(`Tele.EntrarAlConectar` y `Tele.SalirAlDesconectar`). Comprueba en el diagnóstico que
+`Tele.NombrePantalla` solo coincide con la tele y no con tus monitores.
 
-```json
-{ "EscucharEnRed": false, "Tele": { "EntrarAlConectar": false, "SalirAlDesconectar": false } }
-```
-
-Cuando el diagnóstico confirme que `Tele.NombrePantalla` solo coincide con la tele, pon los tres
-valores a `true` (o borra esas líneas: por defecto valen `true`).
+Los programas de `Ventanas.CerrarProcesos` se relanzan al volver (`Ventanas.RelanzarAlSalir`). Si
+alguno estaba solo en el área de notificaciones, se relanza sin abrir su ventana.
 
 ## 3. El móvil
 
@@ -64,9 +70,12 @@ envoltorio que sí envía el paquete Wake-on-LAN.
 1. Compila: `cd android; ./gradlew assembleRelease` → `app/build/outputs/apk/release/app-release.apk`
    (`tools/publicar.ps1` lo copia a `dist/modosofa.apk`). Necesita el SDK en
    `%LOCALAPPDATA%\Android\Sdk` y `JAVA_HOME` apuntando al JBR de Android Studio. Se firma con
-   `C:\Proyectos\Claves\capicua.jks` si `android/local.properties` trae `KEYSTORE_PATH`,
-   `KEYSTORE_PASSWORD`, `KEY_ALIAS` y `KEY_PASSWORD` (los mismos que GameController).
-2. En la app, **Ajustes** → pega el enlace (bandeja → *Vincular móvil…* → *Copiar enlace*).
+   `C:\Proyectos\Claves\CapicuaSoft.jks` si `android/local.properties` trae `KEYSTORE_PATH`,
+   `KEYSTORE_PASSWORD`, `KEY_ALIAS` y `KEY_PASSWORD`. Lo normal es descargar el APK del release.
+   La app es `com.capicuasoft.modosofa`: si tenías una versión anterior a la 1.0.0 (otro
+   identificador y otra firma), desinstálala antes.
+2. En la app, **Ajustes** → **Escanear QR** (el de bandeja → *Vincular móvil…*) o pega el enlace
+   (*Copiar enlace*).
 3. La MAC del PC se guarda sola la primera vez que conecta.
 4. En el PC: activa *Wake on LAN* en la BIOS y, en el Administrador de dispositivos → adaptador
    Ethernet → *Administración de energía*, «Permitir que este dispositivo reactive el equipo».
@@ -109,6 +118,15 @@ Apagar, reiniciar y suspender piden confirmación («¿Seguro…?» → «sí»)
 
 ## 6. La tele LG
 
+ModoSofá sabe controlar dos familias de teles LG (`Tele.LgTipo`: `Auto`, `WebOs` o `NetCast`):
+
+| Tipo | Teles | Qué hace |
+|---|---|---|
+| `WebOs` | 2014 en adelante | Encender (Wake-on-LAN), cambiar a la entrada HDMI y apagar |
+| `NetCast` | Anteriores, p. ej. la 50LB5830 | Solo apagar: no se pueden encender por red |
+
+### webOS
+
 1. En la tele: *Configuración → General → Dispositivos → Ajustes TV* → **Encender con
    Wi-Fi/LAN** (o «LG Connect Apps», según el modelo).
 2. Reserva una IP fija para la tele en el router y apunta su MAC.
@@ -123,6 +141,24 @@ Apagar, reiniciar y suspender piden confirmación («¿Seguro…?» → «sí»)
    ```
 4. La primera orden (p. ej. **Encender tele** desde el móvil) hace que la tele pida permiso:
    acéptalo con su mando. La clave se guarda y no vuelve a preguntar.
+
+### NetCast
+
+1. Reserva una IP fija para la tele en el router.
+2. En `config.json`:
+   ```json
+   "Tele": {
+     "ControlarLg": true,
+     "LgTipo": "NetCast",
+     "LgIp": "192.168.1.50",
+     "EncenderAlEntrar": false,
+     "ApagarAlSalir": true
+   }
+   ```
+3. Con la tele encendida, en el móvil → tarjeta **Tele** → **Mostrar código en la tele**, escribe
+   el código que aparece y pulsa **Vincular**. Se guarda en `secretos.json`.
+
+Al volver a trabajar la tele se apaga unos 8 s después de la orden.
 
 ## 7. RetroArch
 

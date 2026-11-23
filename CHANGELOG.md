@@ -8,22 +8,47 @@ Las notas largas de cada release (artefactos e instalación) están en
 
 ## [No publicado]
 
+## [1.0.0] - 2026-11-23
+
+Primera versión estable, probada en el equipo real con la tele LG. Incluye lo de la 0.2.0, que no
+llegó a publicarse. **Desde la 0.1.0 hay que instalarla a mano una vez** (la 0.1.0 solo sabía
+avisar); a partir de aquí se actualiza sola.
+
 ### Añadido
 
+- **Tele LG NetCast** (anteriores a webOS, p. ej. la 50LB5830): vinculación con el código que
+  muestra la tele (tarjeta «Tele» en el móvil) y apagado al volver a trabajar. Estas teles no se
+  pueden encender por red. `Tele.LgTipo`: `Auto`, `WebOs` o `NetCast`.
+- **Espera a la entrada HDMI:** si enchufas el cable y después enciendes la tele, ModoSofá
+  reintenta pasar la imagen durante `Tele.EsperaImagenS` (90 s) mientras buscas su entrada.
+- **Escanear QR en la app Android** para vincularla (con el escáner de Google Play Services, sin
+  permiso de cámara).
 - **Pantalla de espera al entrar en modo sofá:** mientras se cambia a la tele y arranca Steam
   (que tarda), la pantalla muestra «Entrando en modo sofá» con el paso en curso y los segundos
   que lleva. Se cierra sola cuando aparece Big Picture (o ES-DE). No le quita el foco a nada, y
   un clic la cierra. Se desactiva con `"Lanzadores": { "PantallaEspera": false }`.
 
+### Cambiado
+
+- **Marca CapicuaSoft:** los datos pasan a `%APPDATA%\CapicuaSoft\ModoSofa` y
+  `%LOCALAPPDATA%\CapicuaSoft\ModoSofa`; se mueven solos al arrancar, conservando configuración,
+  vinculaciones y logs. El ejecutable sigue siendo `ModoSofa.exe`.
+- **App Android:** ahora es `com.capicuasoft.modosofa`, firmada con la clave de CapicuaSoft. Si
+  tenías instalada una versión anterior, desinstálala antes.
+- `tools/permitir-firewall.ps1` quita también las reglas que crea Windows para `modosofa.exe` y RetroArch.
+- Iconos en el menú de la bandeja.
+
 ### Corregido
 
+- **Al volver a trabajar siempre se recuperan las pantallas**, aunque la entrada fallara antes de
+  guardarlas (la tele no aceptaba la imagen): ya no queda un monitor apagado.
 - **Teams ya no abre su ventana al volver a trabajar** si al entrar estaba solo en el área de
   notificaciones: se relanza en segundo plano, como al iniciar Windows. Para otros programas
   que estaban en la bandeja, se minimiza su ventana cuando aparece.
 - **Sin la tele conectada, el paso del audio ya no espera 20 s** a una salida HDMI que no va a
   aparecer.
 
-## [0.2.0] - 2026-11-22
+## [0.2.0] - 2026-11-22 (no publicada; incluida en la 1.0.0)
 
 ### Añadido
 

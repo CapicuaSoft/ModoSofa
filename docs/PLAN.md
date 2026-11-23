@@ -30,10 +30,10 @@ AlexaController resolvía parte del problema, pero:
 | Móvil | PWA servida por el propio agente + APK envoltorio con Wake-on-LAN |
 | Alexa | Imprescindible, fase 3: Lambda genérica + Tailscale Funnel (sin ngrok) |
 | Acceso remoto | Tailscale (sin Home Assistant: no hay otro equipo) |
-| Tele | LG webOS: encender (WoL), cambiar de entrada, apagar |
+| Tele | LG webOS: encender (WoL), cambiar de entrada, apagar. LG NetCast (la de casa): solo apagar |
 | RetroArch | Comandos de red activados (`network_cmd_enable`) para cerrar y pausar limpio |
 | Tecnología | .NET 11 (C#) para el agente, web sin framework ni paso de build, Python para la Lambda, Kotlin para el APK |
-| Repositorio | `C:\Proyectos\ModoSofa`, git local |
+| Repositorio | `C:\Proyectos\ModoSofa`, publicado en https://github.com/CapicuaSoft/ModoSofa |
 
 ## Fases
 
@@ -41,7 +41,7 @@ Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pe
 
 ### Fase 0 — Base
 - ✅ Solución .NET: `CapicuaSoft.ModoSofa.Nucleo` (lógica pura), `CapicuaSoft.ModoSofa.Agente` (ejecutable), tests
-- ✅ Configuración en `%APPDATA%\ModoSofa\config.json` (se crea con valores por defecto)
+- ✅ Configuración en `%APPDATA%\CapicuaSoft\ModoSofa\config.json` (se crea con valores por defecto)
 - ✅ Estado persistente con todo lo necesario para deshacer (`estado.json`)
 - ✅ Registro de acciones único (mando, móvil, overlay, Alexa y bandeja llaman a lo mismo)
 - ✅ Log a fichero diario + memoria (visible en el móvil, en vivo)
@@ -49,35 +49,39 @@ Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pe
 - ✅ API HTTP con token + eventos en vivo (SSE)
 
 ### Fase 1 — MVP: modo sofá
-- 🟡 Detección de la tele por nombre de pantalla (EDID) con anti-rebote → entra/sale solo
-- 🟡 Pantallas: solo la tele al entrar; restaurar la topología al salir
-- 🟡 Audio: salida por la tele al entrar (y volumen inicial opcional); restaurar al salir
-- 🟡 Ventanas: cerrar la lista configurada (y relanzarlas al salir, también apps MSIX), minimizar el resto y restaurar su posición
-- 🟡 Energía: plan de energía opcional + impedir suspensión
-- 🟡 Steam en Big Picture con foco; cerrar Steam al salir
-- 🟡 Cerrar juego escalonado (RetroArch por comando de red → ventana → proceso) y devolver el foco a ES-DE/Steam
+- ✅ Detección de la tele por nombre de pantalla (EDID) con anti-rebote → entra/sale solo
+- ✅ Pantallas: solo la tele al entrar (esperando a que muestre la entrada HDMI); restaurar o extender al salir
+- ✅ Audio: salida por la tele al entrar (y volumen inicial opcional); restaurar al salir
+- ✅ Ventanas: cerrar la lista configurada (y relanzarlas al salir, también apps MSIX, sin abrir la ventana de las que estaban en la bandeja), minimizar el resto y restaurar su posición
+- ✅ Energía: impedir suspensión · 🟡 plan de energía opcional (no configurado en este PC)
+- ✅ Steam en Big Picture con foco; cerrar Steam al salir
+- ✅ Pantalla de espera en la tele mientras se entra (Steam tarda ~15 s en arrancar)
+- ✅ Cerrar juego escalonado (RetroArch por comando de red → ventana → proceso) y devolver el foco a ES-DE/Steam
 - 🟡 Enfocar juego, volumen, ES-DE, suspender/reiniciar/apagar
-- 🟡 Recuperación: si el PC se reinicia en modo sofá sin la tele, se revierte al arrancar
-- 🟡 PWA móvil: estado en vivo, botones, log, ajustes, diagnóstico
-- 🟡 Vinculación del móvil por QR
+- ✅ Recuperación: si el PC se reinicia en modo sofá sin la tele, se revierte al arrancar (cuelgue simulado)
+- ✅ PWA móvil: estado en vivo, botones, log, ajustes, diagnóstico
+- ✅ Vinculación del móvil por QR
 
 ### Fase 2 — Mando y tele
-- 🟡 Lectura XInput en segundo plano (no necesita foco)
+- ✅ Lectura XInput en segundo plano (no necesita foco), con Steam Input activo
 - ✅ Back mantenido 2 s → menú en la tele; atajos directos configurables (vacíos por defecto)
-- 🟡 Overlay en la tele (WebView2, no roba el foco) navegable con el mando
+- ✅ Overlay en la tele (WebView2, toma el foco y lo devuelve) navegable con el mando
 - 🟡 Pausa automática de RetroArch mientras el overlay está abierto
-- 🟡 Guardián de foco: si una app de trabajo se pone delante, se minimiza y vuelve el juego
+- ✅ Guardián de foco: si una app de trabajo se pone delante, se minimiza y vuelve el juego
 
-### Fase 3 — Alexa y acceso remoto
+### Fase 3 — Alexa y acceso remoto (aplazada: se hará si se considera necesaria)
 - 🟡 Endpoint `/api/alexa` con token propio (confirmación para apagar/reiniciar)
 - 🟡 Lambda genérica (Python 3.13): solo reenvía el intent
 - 🟡 Modelo de interacción `es-ES` (invocación «modo sofá»)
 - 🟡 Guía de Tailscale (`serve` para el móvil, `funnel` solo para Alexa)
 
 ### Fase 4 — Extras
-- 🟡 Tele LG webOS: encender por WoL, cambiar a la entrada HDMI, apagar al salir
-- 🟡 APK Android: envoltorio de la PWA + Wake-on-LAN + pantalla sin conexión. Compilado y firmado
-  con `capicua.jks` (mismo certificado que GameController); falta instalarlo en el móvil
+- ✅ Tele LG NetCast (la de casa, 50LB5830): vinculación por código y apagado al salir
+- 🟡 Tele LG webOS: encender por WoL, cambiar a la entrada HDMI, apagar al salir (sin tele webOS para probar)
+- 🟡 APK Android: envoltorio de la PWA + Wake-on-LAN + escáner de QR + pantalla sin conexión.
+  Compilado y firmado con `CapicuaSoft.jks` (`com.capicuasoft.modosofa`); falta instalarlo en el
+  móvil y probar el Wake-on-LAN
+- ✅ Autoactualización del PC (instalador verificado por SHA-256, solo en modo trabajo) y de la app
 - ⬜ Modo «No molestar» de Windows: no hay API pública; queda fuera
 
 ## Verificado en este PC (22/11/2026)
@@ -149,10 +153,7 @@ pulsados en el mando físico, tele LG, Wake-on-LAN, Tailscale y el skill real de
   trabajo. Probado en este PC: instalador 0.2.0 sobre 0.1.0 con los parámetros del actualizador →
   0.2.0 en marcha, mismo token, inicio con Windows conservado y sin pedir administrador.
 - Android: busca, descarga y verifica el APK; Android pide confirmar.
-- **Pendiente de publicar**: commit `0.2.0` solo en local y artefactos en `dist/`. Publicar exige
-  `git push` + `./release.ps1` (el script se niega con el árbol sucio: ejecutar con todo
-  confirmado). Hasta entonces no se puede probar la cadena completa contra GitHub
-  (descarga + verificación + instalación automática).
+- No llegó a publicarse por separado: se publicó todo junto como 1.0.0.
 
 ### Pruebas finales con la tele (22/11/2026, 20:00–20:45, con el usuario delante)
 
@@ -178,15 +179,40 @@ Pendiente: la red de casa está marcada como **pública** (Windows creó reglas 
 redes públicas); conviene marcarla como privada. App Android, tele LG por red, Tailscale y Alexa
 sin probar.
 
-## Pendiente de hacer en el equipo real
-1. Responder a los avisos del firewall: **Permitir** ModoSofá en redes privadas (o
-   `tools/permitir-firewall.ps1`) y **Cancelar** el de RetroArch.
-2. Con la tele conectada, revisar `/api/diagnostico` (nombres de pantallas y audio) para ajustar
-   `Tele.NombrePantalla` y `Audio.DispositivoSofa`.
-3. Ajustar `Ventanas.CerrarProcesos` con los programas de trabajo reales.
-4. Probar el ciclo completo enchufando la tele, y los atajos con el mando físico (comprobar que
-   Steam Input no interfiere).
-5. Instalar `dist/modosofa.apk` en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
-6. Emparejar la tele LG (aceptar el aviso en pantalla la primera vez).
-7. Tailscale, Lambda y skill de Alexa según `docs/INSTALACION.md`.
-8. Cuando el skill nuevo funcione: retirar la tarea programada y el túnel ngrok de AlexaController.
+### Después de las pruebas (22–23/11/2026)
+
+- Marca CapicuaSoft: proyectos `CapicuaSoft.ModoSofa.*`, datos en `%APPDATA%\CapicuaSoft\ModoSofa`
+  (migrados solos), repositorio en `github.com/CapicuaSoft/ModoSofa` y app Android
+  `com.capicuasoft.modosofa` firmada con `CapicuaSoft.jks`, con escáner de QR.
+- Tele LG NetCast (la de casa es una 50LB5830, anterior a webOS): UDAP en el puerto 8080,
+  vinculada con el código de la tele y apagado al volver a trabajar.
+- Entrada: reintenta activar la tele durante `Tele.EsperaImagenS` (90 s) mientras se busca su
+  entrada HDMI. Salida: siempre restaura o extiende las pantallas.
+
+### 1.0.0 (23/11/2026)
+
+Probado en el equipo real con el usuario delante:
+
+- **Pantalla de espera** al entrar en modo sofá, con el paso en curso; sin tele (se queda en el
+  monitor) y con tele (pasa a la tele al cambiar la imagen). Se cierra al aparecer Big Picture,
+  que queda delante y con el foco. Entrada completa con Steam cerrado: 31 s, de los que 14 son
+  lanzar `steam.exe`.
+- **Teams vuelve a la bandeja** al volver a trabajar si estaba ahí: se relanza con
+  `msteams:system-initiated`, lo mismo que usa su `msteams_autostarter.exe`.
+- Sin la tele conectada, el paso del audio ya no espera 20 s.
+- La tarea programada de AlexaController ya no existe en este PC (ni procesos de AlexaController
+  o ngrok): no hubo que quitar nada.
+
+Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrarla con un clic y
+`Lanzadores.PantallaEspera: false`.
+
+## Pendiente
+1. Marcar la red de casa como **privada** (Windows creó reglas «Permitir» para redes públicas) y
+   revisar el firewall con `tools/permitir-firewall.ps1`.
+2. Instalar el APK 1.0.0 en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
+3. Comprobar la autoactualización real con la próxima versión (la 1.0.0 es la primera instalada
+   desde un release que sabe actualizarse sola).
+4. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
+   `docs/INSTALACION.md`. Después, apagar AlexaController del todo.
+5. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
+   con el menú abierto.

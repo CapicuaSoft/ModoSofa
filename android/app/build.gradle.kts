@@ -6,7 +6,7 @@ plugins {
 }
 
 // La firma vive en local.properties (no versionado), igual que en GameController: el almacén de
-// claves es C:\Proyectos\Claves\capicua.jks y la ruta es relativa a este módulo.
+// claves es C:\Proyectos\Claves\CapicuaSoft.jks y la ruta es relativa a este módulo.
 val propiedadesLocales = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
@@ -21,8 +21,8 @@ android {
         applicationId = "com.capicuasoft.modosofa"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "1.0.0"
     }
 
     signingConfigs {

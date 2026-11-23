@@ -10,11 +10,13 @@ Enchufas la tele y ModoSofá se encarga del resto:
 
 - deja la tele como **pantalla única** y saca el **sonido por la tele**;
 - cierra los programas de trabajo de una lista (Teams, Outlook…) y **minimiza** el resto;
-- impide que el PC se suspenda y abre **Steam Big Picture**;
+- impide que el PC se suspenda y abre **Steam Big Picture**, con una pantalla de espera en la
+  tele mientras arranca;
 - mientras juegas, aparta cualquier ventana de trabajo que se ponga delante.
 
 Al desenchufar la tele, todo vuelve a su sitio: pantallas, audio, posición de las ventanas, los
-programas cerrados se vuelven a abrir y Steam se cierra.
+programas cerrados se vuelven a abrir (los que estaban en la bandeja, sin abrir su ventana), Steam
+se cierra y, si es una LG, la tele se apaga.
 
 Se maneja con:
 
@@ -66,11 +68,11 @@ src/CapicuaSoft.ModoSofa.Agente/     El ejecutable: bandeja, API, efectos Win32,
   Win32/                 Pantallas (CCD), audio (Core Audio), ventanas, energía, XInput
   Efectos/               Steam, ES-DE, RetroArch, procesos, tele LG, Wake-on-LAN
   Servicios/             Modo sofá, detección de la tele, guardián de foco, mando, estado
-  Interfaz/              Icono de la bandeja, overlay (WebView2), vinculación por QR
+  Interfaz/              Icono de la bandeja, overlay (WebView2), pantalla de espera, QR
   wwwroot/               Panel del móvil (PWA) y menú de la tele
 tests/                   Tests del núcleo
 alexa/                   Lambda genérica y modelo de interacción es-ES
-android/                 App Android: envoltorio de la PWA + Wake-on-LAN
+android/                 App Android: envoltorio de la PWA + Wake-on-LAN + escáner de QR
 installer/               Instalador (Inno Setup) y los pasos que ejecuta
 tools/                   Publicación, instalación desde el repo, firewall, iconos, capturas
 docs/                    Plan, arquitectura e instalación

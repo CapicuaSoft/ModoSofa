@@ -12,10 +12,11 @@
 │  API /api/acciones ──┤     (cola exclusiva)                Energia    (powercfg)     │
 │  API /api/alexa ─────┤                                     Lanzadores (Steam, ES-DE) │
 │  Bandeja ────────────┘                                     RetroArch  (UDP 55355)    │
-│                                                            TeleLg     (SSAP/WSS)     │
-│  GuardianFoco (vigila el foco en modo sofá)                Procesos   (cerrar/relanzar)│
-│  PanelEstado ──► Eventos (SSE) ──► móvil y overlay                                    │
-│  AlmacenEstado ──► %APPDATA%\ModoSofa\estado.json (lo necesario para deshacer)        │
+│                                                            TeleLg     (webOS/NetCast)│
+│  GuardianFoco (vigila el foco en modo sofá)                Procesos (cerrar/relanzar)│
+│  PanelEstado ──► Eventos (SSE) ──► móvil y overlay                                   │
+│  ModoServicio.Progreso ──► VentanaEspera (pantalla de espera al entrar)              │
+│  AlmacenEstado ──► %APPDATA%\CapicuaSoft\ModoSofa\estado.json (para deshacer)        │
 └──────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -35,21 +36,34 @@
 
 ## Entrar en modo sofá (`ModoServicio.EntrarAsync`)
 
-1. Tele LG (si está configurada): Wake-on-LAN y cambio de entrada.
+1. Tele LG (si está configurada): Wake-on-LAN y cambio de entrada (solo webOS).
 2. Pantallas: se guarda la topología (rutas y modos CCD, en base64) y se deja solo la tele,
    conservando su resolución y frecuencia y colocándola en el origen para que sea la principal.
-3. Audio: se guarda la salida y el volumen, y se cambia a la de la tele (`IPolicyConfig`).
-4. Programas de la lista: `CloseMainWindow`, espera y, si siguen vivos, se terminan.
+   Si la tele está conectada pero todavía no muestra la entrada del PC, Windows no puede activarla
+   (`ERROR_BAD_CONFIGURATION`): se reintenta cada 3 s durante `Tele.EsperaImagenS` (90 s).
+3. Audio: se guarda la salida y el volumen, y se cambia a la de la tele (`IPolicyConfig`). Con la
+   tele conectada se espera hasta 20 s a que Windows cree su salida HDMI; sin ella, no se espera.
+4. Programas de la lista: se apunta si tenían alguna ventana visible o estaban solo en la bandeja,
+   `CloseMainWindow`, espera y, si siguen vivos, se terminan.
 5. Ventanas: se guarda la posición (`WINDOWPLACEMENT`) de cada ventana de usuario y se minimiza sin
    activarla. Los procesos dueños de esas ventanas son los que vigila el guardián.
 6. Energía: plan opcional y `SetThreadExecutionState` en un hilo dedicado.
 7. Steam Big Picture (o ES-DE), esperando a su ventana para darle el foco.
 
+Durante la entrada, `ModoServicio.Progreso` avisa de cada paso y la bandeja muestra
+`VentanaEspera`: pantalla completa en la pantalla principal (se recoloca en la tele cuando cambia
+la topología), siempre encima pero **sin tomar el foco** (`WS_EX_NOACTIVATE`), para no quitárselo
+a Big Picture. Se cierra al terminar la entrada, con un clic o a los 3 minutos. Lanzar `steam.exe`
+tarda ~15 s en este PC; sin ella parecía que el PC no hacía nada.
+
 Salir hace lo contrario, en orden inverso, y además cierra ES-DE y Steam (`steam -shutdown`).
+Los programas cerrados se relanzan: por su AUMID si son apps MSIX y por su ruta si no. Si estaban
+solo en la bandeja, se arrancan en segundo plano (Teams con `msteams:system-initiated`, lo mismo
+que usa su inicio con Windows) o, si no se sabe cómo, se minimiza su ventana cuando aparece.
 La topología guardada solo se restaura si siguen conectadas las mismas pantallas; si se desenchufó
-la tele y se volvió a enchufar el monitor que se quitó para ella, se pide a Windows la topología
-extendida, que recuerda la disposición de esos monitores. El audio de la tele aparece unos segundos
-después que su imagen: el paso de audio espera hasta 20 s a que exista.
+la tele y se volvió a enchufar el monitor que se quitó para ella, o si la entrada falló antes de
+guardarla, se pide a Windows la topología extendida, que recuerda la disposición de esos monitores.
+Así nunca queda un monitor apagado.
 
 ## Detección de la tele
 
@@ -87,6 +101,17 @@ y al cerrarlo se reanuda. «Cerrar juego» actúa sobre la ventana que tenía el
 Limitación: los juegos en pantalla completa **exclusiva** no dejan dibujar encima. RetroArch y la
 mayoría de juegos modernos usan ventana sin bordes, que sí lo permite.
 
+## Tele LG
+
+`TeleLg` elige el protocolo según `Tele.LgTipo` (`Auto` pregunta a la tele):
+
+- **webOS** (`TeleWebOs`, 2014 en adelante): SSAP por WebSocket seguro. Encender por
+  Wake-on-LAN, cambiar de entrada y apagar. La primera vez la tele pide permiso y la clave se
+  guarda en `secretos.json`.
+- **NetCast** (`TeleNetCast`, anteriores, p. ej. la 50LB5830): UDAP por HTTP en el puerto 8080.
+  Se vincula con el código que muestra la tele (tarjeta «Tele» del móvil) y solo se puede apagar:
+  estas teles no se encienden por red. Se apaga ~8 s después de la orden.
+
 ## Guardián de foco
 
 Cada 750 ms, en modo sofá: si la ventana activa pertenece a un proceso que tenía ventanas de
@@ -106,7 +131,7 @@ trabajo al entrar, se minimiza y se devuelve el foco al juego. Los procesos que 
 | `/api/diagnostico` | GET | móvil | Pantallas, audio, red, Steam, ES-DE, RetroArch |
 | `/api/alexa` | POST | Alexa | `{intent, pendiente}` → `{habla, terminar, pendiente}` |
 
-Los tokens están en `%APPDATA%\ModoSofa\secretos.json` y se comparan en tiempo constante. El del
+Los tokens están en `%APPDATA%\CapicuaSoft\ModoSofa\secretos.json` y se comparan en tiempo constante. El del
 móvil viaja en el fragmento del QR (`#t=`), que nunca llega a los logs de un servidor.
 
 ## Alexa
@@ -119,8 +144,13 @@ sesión de Alexa. Añadir una orden = una línea en `PuenteAlexa` + sus frases e
 
 | Ruta | Contenido |
 |---|---|
-| `%APPDATA%\ModoSofa\config.json` | Configuración |
-| `%APPDATA%\ModoSofa\estado.json` | Modo actual y lo necesario para deshacer |
-| `%APPDATA%\ModoSofa\secretos.json` | Tokens y clave de la tele |
-| `%LOCALAPPDATA%\ModoSofa\logs\` | Un fichero por día, 14 días |
-| `%LOCALAPPDATA%\ModoSofa\WebView2\` | Datos del navegador del overlay |
+| `%APPDATA%\CapicuaSoft\ModoSofa\config.json` | Configuración |
+| `%APPDATA%\CapicuaSoft\ModoSofa\estado.json` | Modo actual y lo necesario para deshacer |
+| `%APPDATA%\CapicuaSoft\ModoSofa\secretos.json` | Tokens, clave y código de la tele |
+| `%LOCALAPPDATA%\CapicuaSoft\ModoSofa\logs\` | Un fichero por día, 14 días |
+| `%LOCALAPPDATA%\CapicuaSoft\ModoSofa\WebView2\` | Datos del navegador del overlay |
+| `%LOCALAPPDATA%\CapicuaSoft\ModoSofa\instalacion.log` | Lo que hizo cada paso del instalador |
+| `%LOCALAPPDATA%\Programs\ModoSofa\` | El programa instalado |
+
+Hasta la 0.2.0 los datos estaban en `%APPDATA%\ModoSofa` y `%LOCALAPPDATA%\ModoSofa`; al arrancar
+se mueven solos a las carpetas nuevas.
