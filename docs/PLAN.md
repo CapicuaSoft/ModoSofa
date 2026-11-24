@@ -215,13 +215,15 @@ Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrar
 - OpenBOR (lanzado por ES-DE con `LanzarOpenBor.exe`) contaba como juego de Steam por estar bajo
   `C:\Games`. Ahora es un emulador de ES-DE como RetroArch (`Lanzadores.EmuladoresEsDe`): no se
   minimiza, «Cerrar juego» lo cierra sin preguntar y vuelve a ES-DE. Sin probar con el mando.
-- Primera versión que debería llegar sola por la autoactualización a la 1.0.0 instalada.
+- **Autoactualización probada de verdad:** la 1.0.0 instalada encontró la 1.0.1 («Buscar
+  actualizaciones») y se instaló sola en ~40 s, sin elevación, con el mismo token y el inicio con
+  Windows conservado.
+- Visto en el log: «Cerrar juego» con RetroArch y el núcleo dolphin-emu no lo cierra con `QUIT` en
+  5 s y se termina el proceso (riesgo de perder lo no guardado).
 
 ## Pendiente
 1. Instalar el APK 1.0.0 en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
-2. Comprobar la autoactualización real con la próxima versión (la 1.0.0 es la primera instalada
-   desde un release que sabe actualizarse sola).
-3. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
+2. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
    `docs/INSTALACION.md`. Después, apagar AlexaController del todo.
-4. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
+3. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
    con el menú abierto.
