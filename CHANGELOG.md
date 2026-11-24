@@ -8,6 +8,15 @@ Las notas largas de cada release (artefactos e instalación) están en
 
 ## [No publicado]
 
+## [1.0.1] - 2026-11-23
+
+### Cambiado
+
+- **OpenBOR se trata como RetroArch:** ES-DE lo lanza a través de `LanzarOpenBor.exe`, y antes,
+  por estar bajo `C:\Games`, contaba como juego de Steam: «Cerrar juego» pedía confirmación y
+  volvía a Steam. Ahora no se minimiza, se cierra sin preguntar y vuelve a ES-DE. Otros
+  emuladores se añaden en `Lanzadores.EmuladoresEsDe` (por defecto `OpenBOR` y `LanzarOpenBor`).
+
 ## [1.0.0] - 2026-11-23
 
 Primera versión estable, probada en el equipo real con la tele LG. Incluye lo de la 0.2.0, que no

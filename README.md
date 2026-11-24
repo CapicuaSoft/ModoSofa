@@ -53,6 +53,7 @@ trabajar y apagar o reiniciar el equipo. **B** lo cierra y devuelve el foco al j
 | Delante | Qué cierra | Confirmación |
 |---|---|---|
 | RetroArch | El juego, guardando la partida; vuelve a ES-DE | No |
+| OpenBOR (u otro de `Lanzadores.EmuladoresEsDe`) | El emulador; vuelve a ES-DE | No |
 | ES-DE | EmulationStation; vuelve a Steam | No |
 | Un juego de Steam | El juego; vuelve a Steam | Sí: lo no guardado se pierde |
 

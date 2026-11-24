@@ -210,6 +210,13 @@ públicas); quedan «ModoSofá» (solo redes privadas, programa instalado) y el 
 Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrarla con un clic y
 `Lanzadores.PantallaEspera: false`.
 
+### 1.0.1 (23/11/2026)
+
+- OpenBOR (lanzado por ES-DE con `LanzarOpenBor.exe`) contaba como juego de Steam por estar bajo
+  `C:\Games`. Ahora es un emulador de ES-DE como RetroArch (`Lanzadores.EmuladoresEsDe`): no se
+  minimiza, «Cerrar juego» lo cierra sin preguntar y vuelve a ES-DE. Sin probar con el mando.
+- Primera versión que debería llegar sola por la autoactualización a la 1.0.0 instalada.
+
 ## Pendiente
 1. Instalar el APK 1.0.0 en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
 2. Comprobar la autoactualización real con la próxima versión (la 1.0.0 es la primera instalada

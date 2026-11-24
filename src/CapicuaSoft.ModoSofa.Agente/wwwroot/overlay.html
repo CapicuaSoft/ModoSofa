@@ -77,7 +77,8 @@
     // «Cerrar juego» actúa sobre lo que había delante al abrir el menú.
     function textoCerrar() {
       switch (estado?.tipoActivo) {
-        case "RetroArch": return "Cerrar juego";
+        case "RetroArch":
+        case "Emulador": return "Cerrar juego";
         case "EsDe": return "Cerrar EmulationStation";
         case "Juego": return `Cerrar ${estado.activo}…`;
         default: return "Cerrar juego";

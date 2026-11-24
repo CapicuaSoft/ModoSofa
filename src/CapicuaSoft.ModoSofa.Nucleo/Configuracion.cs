@@ -169,6 +169,13 @@ public sealed class LanzadoresConfig
 
     public int RetroArchPuerto { get; set; } = 55355;
 
+    /// <summary>
+    /// Otros emuladores que lanza ES-DE, aparte de RetroArch. Se tratan como él: no se minimizan,
+    /// «Cerrar juego» los cierra sin preguntar y vuelve a ES-DE. OpenBOR se lanza a través de
+    /// LanzarOpenBor.exe (pantalla de carga que abre OpenBOR.exe y espera a que termine).
+    /// </summary>
+    public List<string> EmuladoresEsDe { get; set; } = ["OpenBOR", "LanzarOpenBor"];
+
     /// <summary>Fragmentos de ruta que identifican el ejecutable de un juego.</summary>
     public List<string> PatronesRutaJuegos { get; set; } = [@"steamapps\common", @"C:\Games"];
 

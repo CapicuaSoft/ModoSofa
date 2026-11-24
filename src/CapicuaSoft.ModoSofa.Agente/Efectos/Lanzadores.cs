@@ -22,11 +22,12 @@ using CapicuaSoft.ModoSofa.Nucleo;
 
 namespace CapicuaSoft.ModoSofa.Agente.Efectos;
 
-public enum TipoActivo { Ninguno, Juego, RetroArch, EsDe, Steam }
+/// <summary>Emulador: otro emulador lanzado por ES-DE (OpenBOR…), que se trata como RetroArch.</summary>
+public enum TipoActivo { Ninguno, Juego, RetroArch, Emulador, EsDe, Steam }
 
 public sealed record Activo(TipoActivo Tipo, string Nombre, int ProcesoId, IntPtr Hwnd);
 
-/// <summary>Steam, ES-DE, RetroArch y el juego en marcha: lanzar, enfocar y cerrar.</summary>
+/// <summary>Steam, ES-DE, RetroArch (y los demás emuladores de ES-DE) y el juego en marcha: lanzar, enfocar y cerrar.</summary>
 public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArch retroArch, ILogger<Lanzadores> log)
 {
     private const string EsDe = "ES-DE";
@@ -144,7 +145,7 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
 
     // --- Juego activo ----------------------------------------------------------------------
 
-    /// <summary>Lo que debería tener el foco, por prioridad: juego, RetroArch, ES-DE, Steam.</summary>
+    /// <summary>Lo que debería tener el foco, por prioridad: juego, RetroArch u otro emulador, ES-DE, Steam.</summary>
     public Activo Detectar()
     {
         var lista = ventanas.DeUsuario();
@@ -162,6 +163,10 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
         if (lista.FirstOrDefault(v => v.Proceso.Equals(RetroArch.NombreProceso, StringComparison.OrdinalIgnoreCase)) is { } ra)
             return new Activo(TipoActivo.RetroArch, ra.Titulo, ra.ProcesoId, ra.Hwnd);
 
+        // El más reciente: OpenBOR.exe arranca después que la pantalla de carga de LanzarOpenBor.
+        if (lista.Where(v => EsEmulador(v.Proceso)).OrderByDescending(v => Inicio(v.ProcesoId)).FirstOrDefault() is { } em)
+            return new Activo(TipoActivo.Emulador, em.Titulo, em.ProcesoId, em.Hwnd);
+
         if (lista.FirstOrDefault(v => v.Proceso.Equals(EsDe, StringComparison.OrdinalIgnoreCase)) is { } es)
             return new Activo(TipoActivo.EsDe, "ES-DE", es.ProcesoId, es.Hwnd);
 
@@ -171,9 +176,14 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
             : new Activo(TipoActivo.Ninguno, "", 0, IntPtr.Zero);
     }
 
+    /// <summary>Uno de <see cref="LanzadoresConfig.EmuladoresEsDe"/> (OpenBOR, su lanzador…).</summary>
+    public bool EsEmulador(string proceso) =>
+        config.Lanzadores.EmuladoresEsDe.Contains(proceso, StringComparer.OrdinalIgnoreCase);
+
     private bool EsJuego(string proceso, string? ruta) =>
         ruta is not null
         && !NoJuego.Contains(proceso)
+        && !EsEmulador(proceso)
         && !config.Lanzadores.ProcesosNoJuego.Contains(proceso, StringComparer.OrdinalIgnoreCase)
         && config.Lanzadores.PatronesRutaJuegos.Any(p => ruta.Contains(p, StringComparison.OrdinalIgnoreCase));
 
@@ -210,6 +220,8 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
 
             if (proceso.Equals(RetroArch.NombreProceso, StringComparison.OrdinalIgnoreCase))
                 return new Activo(TipoActivo.RetroArch, titulo, pid, ventana);
+            if (EsEmulador(proceso))
+                return new Activo(TipoActivo.Emulador, titulo, pid, ventana);
             if (proceso.Equals(EsDe, StringComparison.OrdinalIgnoreCase))
                 return new Activo(TipoActivo.EsDe, "ES-DE", pid, ventana);
             if (proceso is "steam" or "steamwebhelper")
@@ -222,7 +234,7 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
 
     /// <summary>
     /// Cierra lo que hay delante y devuelve el foco al nivel anterior:
-    /// RetroArch → ES-DE (o Steam); ES-DE → Steam; juego de Steam → Steam.
+    /// RetroArch u otro emulador → ES-DE (o Steam); ES-DE → Steam; juego de Steam → Steam.
     /// Un juego de Steam no guarda al cerrarlo a la fuerza: exige <paramref name="confirmado"/>.
     /// </summary>
     public async Task CerrarJuegoAsync(Activo objetivo, bool confirmado)
@@ -233,6 +245,12 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
                 log.LogInformation("Cerrando RetroArch: {Nombre}.", objetivo.Nombre);
                 if (!await retroArch.SalirAsync(TimeSpan.FromSeconds(5)))
                     await CerrarProcesoAsync(objetivo.ProcesoId, objetivo.Hwnd, TimeSpan.FromSeconds(4));
+                break;
+            case TipoActivo.Emulador:
+                // OpenBOR no tiene comandos de red: WM_CLOSE (SDL lo recibe como salir) y, si no
+                // basta, se termina el árbol. Al cerrar OpenBOR.exe, LanzarOpenBor termina solo.
+                log.LogInformation("Cerrando el emulador: {Nombre}.", objetivo.Nombre);
+                await CerrarProcesoAsync(objetivo.ProcesoId, objetivo.Hwnd, TimeSpan.FromSeconds(5));
                 break;
             case TipoActivo.EsDe:
                 log.LogInformation("Cerrando ES-DE.");
@@ -251,7 +269,7 @@ public sealed class Lanzadores(Configuracion config, Ventanas ventanas, RetroArc
 
         await Task.Delay(500);
         var esde = Process.GetProcessesByName(EsDe).FirstOrDefault();
-        var destino = esde is not null && objetivo.Tipo == TipoActivo.RetroArch ? ventanas.VentanaDe(esde.Id) : VentanaSteam();
+        var destino = esde is not null && objetivo.Tipo is TipoActivo.RetroArch or TipoActivo.Emulador ? ventanas.VentanaDe(esde.Id) : VentanaSteam();
         ventanas.Enfocar(destino);
     }
 

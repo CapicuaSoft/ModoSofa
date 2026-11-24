@@ -66,7 +66,7 @@ const ModoSofa = (() => {
     return `hace ${h} h ${min % 60} min`;
   }
 
-  const nombresActivo = { Juego: "Juego", RetroArch: "RetroArch", EsDe: "ES-DE", Steam: "Steam", Ninguno: "" };
+  const nombresActivo = { Juego: "Juego", RetroArch: "RetroArch", Emulador: "Emulador", EsDe: "ES-DE", Steam: "Steam", Ninguno: "" };
 
   return { get token() { return token; }, api, eventos, accion, olvidar, hace, nombresActivo };
 })();

@@ -172,7 +172,7 @@ public sealed class ModoServicio(
             {
                 var excluidos = new HashSet<string>(config.Ventanas.NoMinimizar, StringComparer.OrdinalIgnoreCase);
                 var lista = ventanas.DeUsuario()
-                    .Where(v => !NoMinimizar.Contains(v.Proceso) && !excluidos.Contains(v.Proceso))
+                    .Where(v => !NoMinimizar.Contains(v.Proceso) && !excluidos.Contains(v.Proceso) && !lanzadores.EsEmulador(v.Proceso))
                     .ToList();
                 foreach (var v in lista)
                     e.Ventanas.Add(new VentanaGuardada(v.Hwnd, v.ProcesoId, v.Proceso, v.Titulo, Ventanas.GuardarPosicion(v.Hwnd)));
