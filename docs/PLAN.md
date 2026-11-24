@@ -29,7 +29,7 @@ AlexaController resolvía parte del problema, pero:
 | Mando | `Back` mantenido 2 s abre el menú; sin atajos directos (`Back+Start` lo usa Steam) |
 | Móvil | PWA servida por el propio agente + APK envoltorio con Wake-on-LAN |
 | Alexa | Imprescindible, fase 3: Lambda genérica + Tailscale Funnel (sin ngrok) |
-| Acceso remoto | Tailscale (sin Home Assistant: no hay otro equipo) |
+| Acceso remoto | Descartado: el móvil solo se usa en casa (Tailscale, solo como Funnel para Alexa) |
 | Tele | LG webOS: encender (WoL), cambiar de entrada, apagar. LG NetCast (la de casa): solo apagar |
 | RetroArch | Comandos de red activados (`network_cmd_enable`) para cerrar y pausar limpio |
 | Tecnología | .NET 11 (C#) para el agente, web sin framework ni paso de build, Python para la Lambda, Kotlin para el APK |
@@ -69,11 +69,12 @@ Estado: ✅ hecho · 🟡 hecho, pendiente de probar en el equipo real · ⬜ pe
 - 🟡 Pausa automática de RetroArch mientras el overlay está abierto
 - ✅ Guardián de foco: si una app de trabajo se pone delante, se minimiza y vuelve el juego
 
-### Fase 3 — Alexa y acceso remoto (aplazada: se hará si se considera necesaria)
+### Fase 3 — Alexa (aplazada: se hará si se considera necesaria)
 - 🟡 Endpoint `/api/alexa` con token propio (confirmación para apagar/reiniciar)
 - 🟡 Lambda genérica (Python 3.13): solo reenvía el intent
 - 🟡 Modelo de interacción `es-ES` (invocación «modo sofá»)
-- 🟡 Guía de Tailscale (`serve` para el móvil, `funnel` solo para Alexa)
+- 🟡 Guía de Tailscale Funnel, solo para Alexa
+- Descartado: acceso al móvil fuera de casa (`tailscale serve`); la app se usa en la red local
 
 ### Fase 4 — Extras
 - ✅ Tele LG NetCast (la de casa, 50LB5830): vinculación por código y apagado al salir
