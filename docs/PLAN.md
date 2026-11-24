@@ -224,11 +224,15 @@ Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrar
   inicio rápido) está desactivada: «Apagar» es un S5 completo.
 - Visto en el log: «Cerrar juego» con RetroArch y el núcleo dolphin-emu no lo cierra con `QUIT` en
   5 s y se termina el proceso (riesgo de perder lo no guardado).
+- **Mando probado:** menú en la tele con Back mantenido, volumen, enfocar juego,
+  suspender/reiniciar/apagar, pausa de RetroArch con el menú abierto y «Cerrar juego» con OpenBOR.
+- Wake-on-LAN desde apagado (S5): primer intento fallido; aplazado.
 
 ## Pendiente
 1. Encender el PC apagado (S5) por Wake-on-LAN: en la BIOS del HP EliteDesk 705 G3 (F10),
    «S5 Maximum Power Savings» en Disable y «S5 Wake on LAN» en Enable.
+   Primer intento: no encendió (aplazado).
 2. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
    `docs/INSTALACION.md`. Después, apagar AlexaController del todo.
-3. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
-   con el menú abierto.
+3. «Cerrar juego» con RetroArch y dolphin-emu: reintentar `GET_STATUS`, mandar `QUIT` aunque no
+   conteste y esperar más antes de terminar el proceso.
