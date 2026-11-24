@@ -207,7 +207,7 @@ Red de casa marcada como privada. Firewall revisado con `installer/firewall.ps1`
 reglas «ModoSofa» que Windows creó para el ejecutable de desarrollo (TCP y UDP, redes privadas y
 públicas); quedan «ModoSofá» (solo redes privadas, programa instalado) y el bloqueo de RetroArch.
 
-Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrarla con un clic y
+Pantalla de espera validada: el aviso de esperar la entrada HDMI, cerrarla con un clic y
 `Lanzadores.PantallaEspera: false`.
 
 ### 1.0.1 (23/11/2026)
