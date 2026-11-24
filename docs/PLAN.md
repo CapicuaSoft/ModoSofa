@@ -218,11 +218,16 @@ Sin probar: el aviso de esperar la entrada HDMI en la pantalla de espera, cerrar
 - **Autoactualización probada de verdad:** la 1.0.0 instalada encontró la 1.0.1 («Buscar
   actualizaciones») y se instaló sola en ~40 s, sin elevación, con el mismo token y el inicio con
   Windows conservado.
+- **App Android 1.0.1** instalada en el móvil y vinculada por QR. «Suspender» desde la app y
+  **Wake-on-LAN desde suspensión** (S3) probados: Windows da como origen el puerto PCIe de la
+  Broadcom NetXtreme, que ya tenía «Wake on Magic Packet» activado. La hibernación (y con ella el
+  inicio rápido) está desactivada: «Apagar» es un S5 completo.
 - Visto en el log: «Cerrar juego» con RetroArch y el núcleo dolphin-emu no lo cierra con `QUIT` en
   5 s y se termina el proceso (riesgo de perder lo no guardado).
 
 ## Pendiente
-1. Instalar el APK 1.0.0 en el móvil y activar Wake-on-LAN en la BIOS y en la tarjeta de red.
+1. Encender el PC apagado (S5) por Wake-on-LAN: en la BIOS del HP EliteDesk 705 G3 (F10),
+   «S5 Maximum Power Savings» en Disable y «S5 Wake on LAN» en Enable.
 2. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
    `docs/INSTALACION.md`. Después, apagar AlexaController del todo.
 3. Probar con el mando: volumen, enfocar juego, suspender/reiniciar/apagar y la pausa de RetroArch
