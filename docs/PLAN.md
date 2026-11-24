@@ -234,5 +234,3 @@ Pantalla de espera validada: el aviso de esperar la entrada HDMI, cerrarla con u
    Primer intento: no encendió (aplazado).
 2. Alexa (fase 3), si se considera necesaria: Tailscale, Lambda y skill según
    `docs/INSTALACION.md`. Después, apagar AlexaController del todo.
-3. «Cerrar juego» con RetroArch y dolphin-emu: reintentar `GET_STATUS`, mandar `QUIT` aunque no
-   conteste y esperar más antes de terminar el proceso.
